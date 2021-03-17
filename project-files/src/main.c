@@ -1,4 +1,8 @@
 #include <gtk/gtk.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "gd.h"
 
 typedef struct {
     GtkWidget *w_dlg_file_choose;       // Pointer to file chooser dialog box
@@ -13,7 +17,7 @@ int main(int argc, char *argv[])
 
     gtk_init(&argc, &argv);
 
-    builder = gtk_builder_new_from_file("src/glade/main_window.glade");
+    builder = gtk_builder_new_from_file("src/glade/window_main.glade");
 
     window = GTK_WIDGET(gtk_builder_get_object(builder, "window_main"));
     widgets->w_dlg_file_choose = GTK_WIDGET(gtk_builder_get_object(builder, "dlg_file_choose"));
@@ -61,5 +65,6 @@ void on_menubar_quit_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
 // called when window is closed
 void on_window_main_destroy()
 {
+    printf("application closed\n");
     gtk_main_quit();
 }
