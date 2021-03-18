@@ -2,24 +2,15 @@
 <!-- Generated with glade 3.22.2 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
-  <object class="GtkAdjustment" id="adjustment1">
-    <property name="upper">10</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment3">
-    <property name="upper">100</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment4">
-    <property name="upper">100</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-  </object>
   <object class="GtkAdjustment" id="brightness_adj">
     <property name="lower">-100</property>
     <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="contrast_adj">
+    <property name="lower">-50</property>
+    <property name="upper">50</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
@@ -102,6 +93,17 @@
     <property name="pixel_size">25</property>
     <property name="icon_name">tool_flood_fill</property>
   </object>
+  <object class="GtkAdjustment" id="temperature_adj">
+    <property name="lower">-100</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="zoom_adj">
+    <property name="upper">10</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
   <object class="GtkApplicationWindow" id="window_main">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Nebula</property>
@@ -109,6 +111,7 @@
     <property name="default_width">1600</property>
     <property name="default_height">900</property>
     <property name="show_menubar">False</property>
+    <signal name="destroy" handler="on_window_main_destroy" swapped="no"/>
     <child type="titlebar">
       <placeholder/>
     </child>
@@ -476,7 +479,6 @@
                                     <property name="can_focus">True</property>
                                     <property name="max_length">4</property>
                                     <property name="width_chars">4</property>
-                                    <property name="text" translatable="yes">1280</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -490,7 +492,6 @@
                                     <property name="can_focus">True</property>
                                     <property name="max_length">4</property>
                                     <property name="width_chars">4</property>
-                                    <property name="text" translatable="yes">720</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -614,17 +615,17 @@
                                             <property name="can_focus">False</property>
                                             <property name="spacing">12</property>
                                             <child>
-                                              <object class="GtkEntry">
+                                              <object class="GtkSpinButton" id="entry_brightness">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="halign">start</property>
-                                                <property name="valign">start</property>
-                                                <property name="max_length">4</property>
-                                                <property name="invisible_char">•</property>
+                                                <property name="max_length">3</property>
                                                 <property name="activates_default">True</property>
-                                                <property name="width_chars">4</property>
-                                                <property name="caps_lock_warning">False</property>
+                                                <property name="width_chars">3</property>
                                                 <property name="input_purpose">number</property>
+                                                <property name="adjustment">brightness_adj</property>
+                                                <property name="climb_rate">1</property>
+                                                <property name="numeric">True</property>
+                                                <signal name="activate" handler="on_entry_brightness_activate" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -633,7 +634,7 @@
                                               </packing>
                                             </child>
                                             <child>
-                                              <object class="GtkScale">
+                                              <object class="GtkScale" id="scale_brightness">
                                                 <property name="width_request">224</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
@@ -641,6 +642,7 @@
                                                 <property name="valign">center</property>
                                                 <property name="adjustment">brightness_adj</property>
                                                 <property name="draw_value">False</property>
+                                                <signal name="value-changed" handler="on_scale_brightness_value_changed" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -702,15 +704,15 @@
                                             <property name="can_focus">False</property>
                                             <property name="spacing">12</property>
                                             <child>
-                                              <object class="GtkEntry">
+                                              <object class="GtkSpinButton" id="entry_contrast">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="halign">start</property>
-                                                <property name="valign">start</property>
-                                                <property name="max_length">4</property>
-                                                <property name="width_chars">4</property>
-                                                <property name="caps_lock_warning">False</property>
-                                                <property name="input_purpose">number</property>
+                                                <property name="max_length">2</property>
+                                                <property name="activates_default">True</property>
+                                                <property name="width_chars">2</property>
+                                                <property name="adjustment">contrast_adj</property>
+                                                <property name="numeric">True</property>
+                                                <signal name="activate" handler="on_entry_contrast_activate" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -719,14 +721,15 @@
                                               </packing>
                                             </child>
                                             <child>
-                                              <object class="GtkScale">
+                                              <object class="GtkScale" id="scale_contrast">
                                                 <property name="width_request">224</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="halign">center</property>
                                                 <property name="valign">center</property>
-                                                <property name="adjustment">adjustment3</property>
+                                                <property name="adjustment">contrast_adj</property>
                                                 <property name="draw_value">False</property>
+                                                <signal name="value-changed" handler="on_scale_contrast_value_changed" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -790,15 +793,15 @@
                                             <property name="can_focus">False</property>
                                             <property name="spacing">12</property>
                                             <child>
-                                              <object class="GtkEntry">
+                                              <object class="GtkSpinButton" id="entry_temperature">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="halign">start</property>
-                                                <property name="valign">start</property>
-                                                <property name="max_length">4</property>
-                                                <property name="width_chars">4</property>
-                                                <property name="caps_lock_warning">False</property>
-                                                <property name="input_purpose">number</property>
+                                                <property name="max_length">3</property>
+                                                <property name="activates_default">True</property>
+                                                <property name="width_chars">3</property>
+                                                <property name="adjustment">temperature_adj</property>
+                                                <property name="numeric">True</property>
+                                                <signal name="activate" handler="on_entry_temperature_activate" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -807,14 +810,15 @@
                                               </packing>
                                             </child>
                                             <child>
-                                              <object class="GtkScale">
+                                              <object class="GtkScale" id="scale_temperature">
                                                 <property name="width_request">224</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="halign">center</property>
                                                 <property name="valign">center</property>
-                                                <property name="adjustment">adjustment4</property>
+                                                <property name="adjustment">temperature_adj</property>
                                                 <property name="draw_value">False</property>
+                                                <signal name="value-changed" handler="on_scale_temperature_value_changed" swapped="no"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -1272,13 +1276,14 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkButton">
-                                <property name="label" translatable="yes">Apply selected filter(s)</property>
+                              <object class="GtkButton" id="btn_apply">
+                                <property name="label" translatable="yes">Apply modification(s)</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="focus_on_click">False</property>
                                 <property name="receives_default">True</property>
                                 <property name="halign">start</property>
+                                <signal name="clicked" handler="on_btn_apply_clicked" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -1500,8 +1505,8 @@
                       <object class="GtkViewport">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="halign">start</property>
-                        <property name="valign">start</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
                         <child>
                           <object class="GtkImage" id="img_main">
                             <property name="visible">True</property>
@@ -1556,7 +1561,7 @@
                                         <property name="can_focus">False</property>
                                         <property name="halign">center</property>
                                         <property name="valign">center</property>
-                                        <property name="label" translatable="yes">[ZOOM]</property>
+                                        <property name="label" translatable="yes">100%</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1565,13 +1570,13 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkLabel">
+                                      <object class="GtkLabel" id="info_resolution">
                                         <property name="width_request">124</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="halign">center</property>
                                         <property name="valign">center</property>
-                                        <property name="label" translatable="yes">[RESOLUTION]</property>
+                                        <property name="label" translatable="yes">None</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1596,7 +1601,7 @@
                                 <property name="halign">end</property>
                                 <property name="valign">center</property>
                                 <property name="margin_bottom">2</property>
-                                <property name="adjustment">adjustment1</property>
+                                <property name="adjustment">zoom_adj</property>
                                 <property name="round_digits">0</property>
                                 <property name="digits">2</property>
                                 <property name="draw_value">False</property>

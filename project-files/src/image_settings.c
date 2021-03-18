@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include "gd.h"
-#include "imageSettings.h"
+#include ".h/image_settings.h"
 
 
 
 void Temperature(gdImagePtr image, int value, FILE *Output )
 {
-    Output = fopen ("temp.png", "wb");
+    Output = fopen ("cache/temp_img.png", "wb");
     
     if (value>0)
     {
@@ -23,7 +23,7 @@ void Temperature(gdImagePtr image, int value, FILE *Output )
 
 void Brightness(gdImagePtr image, int value, FILE *Output )
 {
-    Output = fopen ("temp.png", "wb");
+    Output = fopen ("cache/temp_img.png", "wb");
     
     gdImageBrightness(image,value);
     
@@ -33,7 +33,7 @@ void Brightness(gdImagePtr image, int value, FILE *Output )
 
 void Contrast(gdImagePtr image, double value, FILE *Output )
 {
-    Output = fopen ("temp.png", "wb");
+    Output = fopen ("cache/temp_img.png", "wb");
     
     gdImageContrast(image,-value);
     
