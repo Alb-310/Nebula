@@ -2,6 +2,18 @@
 <!-- Generated with glade 3.22.2 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment2">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+  </object>
   <object class="GtkAdjustment" id="brightness_adj">
     <property name="lower">-100</property>
     <property name="upper">100</property>
@@ -100,7 +112,9 @@
     <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="zoom_adj">
-    <property name="upper">10</property>
+    <property name="lower">-2</property>
+    <property name="upper">20</property>
+    <property name="value">1</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
@@ -1497,23 +1511,21 @@
                     <property name="window_placement_set">False</property>
                     <property name="shadow_type">in</property>
                     <property name="min_content_width">1280</property>
-                    <property name="kinetic_scrolling">False</property>
                     <property name="max_content_width">1280</property>
-                    <property name="propagate_natural_width">True</property>
-                    <property name="propagate_natural_height">True</property>
                     <child>
                       <object class="GtkViewport">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="halign">start</property>
-                        <property name="valign">start</property>
+                        <property name="hadjustment">adjustment1</property>
+                        <property name="vadjustment">adjustment2</property>
                         <child>
-                          <object class="GtkImage" id="img_main">
+                          <object class="GtkDrawingArea" id="drw_aera">
                             <property name="visible">True</property>
+                            <property name="app_paintable">True</property>
                             <property name="can_focus">False</property>
-                            <property name="halign">start</property>
-                            <property name="valign">start</property>
-                            <property name="stock">gtk-discard</property>
+                            <property name="halign">center</property>
+                            <property name="valign">center</property>
+                            <signal name="draw" handler="on_draw_event" swapped="no"/>
                           </object>
                         </child>
                       </object>
@@ -1555,13 +1567,13 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <child>
-                                      <object class="GtkLabel">
+                                      <object class="GtkLabel" id="info_zoom">
                                         <property name="width_request">124</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="halign">center</property>
                                         <property name="valign">center</property>
-                                        <property name="label" translatable="yes">100%</property>
+                                        <property name="label" translatable="yes">None</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1594,7 +1606,7 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkScale">
+                              <object class="GtkScale" id="scale_zoom">
                                 <property name="width_request">254</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
@@ -1603,8 +1615,9 @@
                                 <property name="margin_bottom">2</property>
                                 <property name="adjustment">zoom_adj</property>
                                 <property name="round_digits">0</property>
-                                <property name="digits">2</property>
+                                <property name="digits">0</property>
                                 <property name="draw_value">False</property>
+                                <signal name="value-changed" handler="on_scale_zoom_value_changed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
