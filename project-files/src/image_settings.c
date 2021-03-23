@@ -2,8 +2,6 @@
 #include "gd.h"
 #include ".h/image_settings.h"
 
-
-
 void Temperature(gdImagePtr image, int value, FILE *Output )
 {
     Output = fopen ("cache/temp_img.png", "wb");
