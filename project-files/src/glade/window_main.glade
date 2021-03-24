@@ -536,9 +536,12 @@
                     <child>
                       <object class="GtkButton" id="clear">
                         <property name="label" translatable="yes">clear</property>
+                        <property name="width_request">55</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
                         <signal name="clicked" handler="on_clear_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -550,9 +553,12 @@
                     <child>
                       <object class="GtkButton" id="red">
                         <property name="label" translatable="yes">red</property>
+                        <property name="width_request">55</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
                         <signal name="clicked" handler="on_red_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -564,9 +570,12 @@
                     <child>
                       <object class="GtkButton" id="green">
                         <property name="label" translatable="yes">green</property>
+                        <property name="width_request">55</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
                         <signal name="clicked" handler="on_green_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -578,9 +587,12 @@
                     <child>
                       <object class="GtkButton" id="blue">
                         <property name="label" translatable="yes">blue</property>
+                        <property name="width_request">55</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
                         <signal name="clicked" handler="on_blue_clicked" swapped="no"/>
                       </object>
                       <packing>
@@ -592,9 +604,12 @@
                     <child>
                       <object class="GtkButton" id="white">
                         <property name="label" translatable="yes">white</property>
+                        <property name="width_request">55</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
                         <signal name="clicked" handler="on_white_clicked" swapped="no"/>
                       </object>
                       <packing>

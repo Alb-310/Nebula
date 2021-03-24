@@ -1004,6 +1004,7 @@
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
                                                         <property name="draw_indicator">True</property>
+                                                        <signal name="toggled" handler="on_check_redflagfilter_toggled" swapped="no"/>
                                                       </object>
                                                       <packing>
                                                         <property name="expand">False</property>
@@ -1124,6 +1125,7 @@
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
                                                         <property name="draw_indicator">True</property>
+                                                        <signal name="toggled" handler="on_check_glowfilter_toggled" swapped="no"/>
                                                       </object>
                                                       <packing>
                                                         <property name="expand">False</property>
@@ -1164,6 +1166,7 @@
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
                                                         <property name="draw_indicator">True</property>
+                                                        <signal name="toggled" handler="on_check_summertimefilter_toggled" swapped="no"/>
                                                       </object>
                                                       <packing>
                                                         <property name="expand">False</property>
@@ -1325,6 +1328,7 @@
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
                                                         <property name="draw_indicator">True</property>
+                                                        <signal name="toggled" handler="on_check_oldschool_toggled" swapped="no"/>
                                                       </object>
                                                       <packing>
                                                         <property name="expand">False</property>

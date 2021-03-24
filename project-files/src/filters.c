@@ -25,7 +25,6 @@ void RedFlag_Filter(gdImagePtr image, FILE *Output, char *path )
     {
         for (int x = 0; x < gdImageSX(image); x++)
         {
-            int pixel = gdImageGetPixel(image,x,y);
             int truepixel = gdImageGetTrueColorPixel (image,x,y);
             int r = gdImageRed(image,truepixel);
             int b = gdImageBlue(image,truepixel);
