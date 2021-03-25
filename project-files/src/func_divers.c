@@ -68,7 +68,7 @@ void Add_text(char *filename,char *font,int x,int y,int width,int height,int col
 	brect[5]=y+height;
 	brect[6]=x;
 	brect[7]=y+height;
-	gdImageStringFT(im,brect,font,size,angle,x,y,text);
+	gdImageStringFT(im,brect,color,font,size,angle,x,y,text);
 	gdImagePng(im,out);
 	gdFree(im);
 	fclose(out);

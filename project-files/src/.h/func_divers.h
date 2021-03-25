@@ -7,7 +7,7 @@ void Crop(char *filename,int x,int y, int width,int height);
 
 void Rotate(char *filename,int angle);
 
-void Add_text(char *filename,char *font_size,int x,int y,unsigned char *s,int color);
+void Add_text(char *filename,char *font,int x,int y,int width,int height,int color,double size,double angle,char* text);
 
 #endif
 
