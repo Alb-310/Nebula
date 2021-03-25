@@ -19,6 +19,7 @@
 
 #include ".h/filters.h"
 #include ".h/image_settings.h"
+#include ".h/drawing.h"
 
 /*
  * Group: Orion
@@ -396,6 +397,8 @@ int on_draw_event(GtkWidget *widget, cairo_t *cr, app_widgets *app_wdgts)
                 cairo_move_to(cr, (double) old_x, (double) old_y);
                 cairo_line_to(cr, (double) p1->x, (double) p1->y);
                 cairo_stroke(cr);
+
+                //set_pixel(app_wdgts->gd_img, app_wdgts->gd_out, p1->x, p1->y, 255, 0, 0, 255, 7, 0, 2, "cache/test.png");
 
                 old_x = p1->x;
                 old_y = p1->y;
