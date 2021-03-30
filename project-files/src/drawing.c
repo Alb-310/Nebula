@@ -58,4 +58,12 @@ void line_to (gdImagePtr im, FILE *out, int x1, int y1, int x2, int y2,
     fclose(out);
 }
 
-
+void fill (gdImagePtr im, FILE *out, int x, int y, int r, int g, int b,
+                    int a, char *path)
+{
+    out = fopen(path, "wb");
+    int color = gdImageColor(im, r, g, b, a);
+    gdImageFill(im, x, y, color);
+    gdImagePng(im, out);
+    fclose(out);
+}
