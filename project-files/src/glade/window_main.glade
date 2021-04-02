@@ -1617,6 +1617,7 @@
                             <property name="halign">center</property>
                             <property name="valign">center</property>
                             <signal name="button-press-event" handler="on_draw_button_press_event" swapped="no"/>
+                            <signal name="button-release-event" handler="on_draw_button_release_event" swapped="no"/>
                             <signal name="draw" handler="on_draw_event" swapped="no"/>
                             <signal name="motion-notify-event" handler="on_draw_motion_notify_event" swapped="no"/>
                           </object>
