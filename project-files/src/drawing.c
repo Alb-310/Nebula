@@ -6,22 +6,29 @@
 struct Point {
     int x;
     int y;
-    int red, green, blue, white;
     struct Point *next;
 };
 
-void set_pixel (gdImagePtr im, FILE *out, int x, int y, int r, int g, int b,
-                    int a, int tks, int type, int zoom, char *path)
+struct Color {
+    int r;
+    int g;
+    int b;
+    int a;
+};
+
+void set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c,int tks, int type, int zoom, char *path)
 {
     out = fopen(path, "wb");
+    struct Color *color_info = c;
     int type_modif;
-    if (type == 0) // Pinceau
-        type_modif = 0;
-    if (type == 1) // Crayon de papier
-        type_modif = 50;
-    if (type == 2) // Marqueur
-        type_modif = 25;
-    int color = gdImageColorAllocate(im, r, g, b);
+    
+    switch(type){
+        case 2: type_modif = 75; break;
+        case 3: type_modif = 115; break;
+        default: type_modif = 0; break;
+    }
+    int color = gdImageColorAllocateAlpha(im, color_info->r, color_info->g, color_info->b, color_info->a + 127 + type_modif);
+    
     // tks *= zoom;
     int tks_modif;
     if (tks == 1)
@@ -39,37 +46,28 @@ void set_pixel (gdImagePtr im, FILE *out, int x, int y, int r, int g, int b,
 }
 
 void line_to (gdImagePtr im, FILE *out, void *point_list, 
-                int r, int g, int b, int a, int tks, int type, int zoom, char *path)
+                void* c, int tks, int type, int zoom, char *path)
 {
     out = fopen(path, "wb");
+    struct Color *color_info = c;    
     int type_modif;
     // tks *= zoom;
     int tks_modif;
     struct Point *tmp;
     struct Point *point = point_list;
 
-    if (type == 0) // Pinceau
-        type_modif = 0;
-    if (type == 1) // Crayon de papier
-        type_modif = 50;
-    if (type == 2) // Marqueur
-        type_modif = 25;
+    switch(type){
+        case 2: type_modif = 75; break;
+        case 3: type_modif = 115; break;
+        default: type_modif = 0; break;
+    }
+    int color = gdImageColorAllocateAlpha(im, color_info->r, color_info->g, color_info->b, color_info->a + 127 + type_modif);
 
-    int color = gdImageColorAllocate(im, r, g, b);
     if(color == 0){
         errx(EXIT_FAILURE, "Couldn't create color.");
     }
 
-    if (tks == 1)
-        tks_modif = 0;
-    else if (tks == 3)
-        tks_modif = 1;
-    else if (tks == 5)
-        tks_modif = 2;
-    else
-        tks_modif = 3;
-
-    gdImageSetThickness(im, tks_modif);
+    gdImageSetThickness(im, tks);
 
     while (point != NULL)
     {
@@ -84,11 +82,11 @@ void line_to (gdImagePtr im, FILE *out, void *point_list,
     fclose(out);
 }
 
-void fill (gdImagePtr im, FILE *out, int x, int y, int r, int g, int b,
-                    int a, char *path)
+void fill (gdImagePtr im, FILE *out, int x, int y, void* c, char *path)
 {
     out = fopen(path, "wb");
-    int color = gdImageColor(im, r, g, b, a);
+    struct Color *color_info = c;
+    int color = gdImageColorAllocateAlpha(im, color_info->r, color_info->g, color_info->b, color_info->a);
     gdImageFill(im, x, y, color);
     gdImagePng(im, out);
     fclose(out);

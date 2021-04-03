@@ -2,6 +2,12 @@
 <!-- Generated with glade 3.22.2 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
+  <object class="GtkAdjustment" id="adj_rotation">
+    <property name="lower">-360</property>
+    <property name="upper">360</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
   <object class="GtkAdjustment" id="adjustment1">
     <property name="upper">100</property>
     <property name="step_increment">1</property>
@@ -26,6 +32,16 @@
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
+  <object class="GtkAdjustment" id="crop_h">
+    <property name="upper">9999</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="crop_w">
+    <property name="upper">9999</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
   <object class="GtkListStore" id="liststore1">
     <columns>
       <!-- column-name text -->
@@ -42,7 +58,7 @@
         <col id="0" translatable="yes">5px</col>
       </row>
       <row>
-        <col id="0" translatable="yes">8px</col>
+        <col id="0" translatable="yes">7px</col>
       </row>
     </data>
   </object>
@@ -53,13 +69,16 @@
     </columns>
     <data>
       <row>
+        <col id="0" translatable="yes">None</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Brush</col>
+      </row>
+      <row>
         <col id="0" translatable="yes">Pencil</col>
       </row>
       <row>
         <col id="0" translatable="yes">Marker</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Brush</col>
       </row>
     </data>
   </object>
@@ -337,12 +356,13 @@
                                 <property name="can_focus">False</property>
                                 <property name="spacing">2</property>
                                 <child>
-                                  <object class="GtkComboBox">
+                                  <object class="GtkComboBox" id="cb_brush">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="focus_on_click">False</property>
                                     <property name="model">liststore2</property>
                                     <property name="active">0</property>
+                                    <signal name="changed" handler="on_cb_brush_changed" swapped="no"/>
                                     <child>
                                       <object class="GtkCellRendererText"/>
                                       <attributes>
@@ -357,12 +377,13 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox">
+                                  <object class="GtkComboBox" id="cb_thickness">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="focus_on_click">False</property>
                                     <property name="model">liststore1</property>
                                     <property name="active">0</property>
+                                    <signal name="changed" handler="on_cb_thickness_changed" swapped="no"/>
                                     <child>
                                       <object class="GtkCellRendererText"/>
                                       <attributes>
@@ -377,12 +398,13 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkColorButton">
+                                  <object class="GtkColorButton" id="btn_color">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
+                                    <property name="can_focus">False</property>
                                     <property name="receives_default">True</property>
                                     <property name="margin_left">2</property>
                                     <property name="use_alpha">True</property>
+                                    <signal name="color-set" handler="on_btn_color_color_set" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -425,7 +447,7 @@
                             <property name="left_padding">10</property>
                             <property name="right_padding">10</property>
                             <child>
-                              <object class="GtkFontButton">
+                              <object class="GtkFontButton" id="btn_font">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
@@ -474,12 +496,13 @@
                                 <property name="can_focus">False</property>
                                 <property name="spacing">6</property>
                                 <child>
-                                  <object class="GtkButton">
-                                    <property name="label" translatable="yes">Crop</property>
+                                  <object class="GtkButton" id="btn_resize">
+                                    <property name="label" translatable="yes">Resize</property>
                                     <property name="width_request">60</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
+                                    <signal name="clicked" handler="on_btn_resize_clicked" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -488,11 +511,13 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkEntry">
+                                  <object class="GtkButton" id="btn_crop">
+                                    <property name="label" translatable="yes">Crop</property>
+                                    <property name="width_request">60</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="max_length">4</property>
-                                    <property name="width_chars">4</property>
+                                    <property name="receives_default">True</property>
+                                    <signal name="clicked" handler="on_btn_crop_clicked" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -501,16 +526,35 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkEntry">
+                                  <object class="GtkSpinButton" id="entryW_crop">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="max_length">4</property>
                                     <property name="width_chars">4</property>
+                                    <property name="input_purpose">number</property>
+                                    <property name="adjustment">crop_w</property>
+                                    <property name="numeric">True</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">True</property>
                                     <property name="position">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkSpinButton" id="entryH_crop">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="max_length">4</property>
+                                    <property name="width_chars">4</property>
+                                    <property name="input_purpose">number</property>
+                                    <property name="adjustment">crop_h</property>
+                                    <property name="numeric">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">3</property>
                                   </packing>
                                 </child>
                               </object>
@@ -534,88 +578,72 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="clear">
-                        <property name="label" translatable="yes">clear</property>
-                        <property name="width_request">55</property>
+                      <object class="GtkFrame">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="halign">center</property>
-                        <property name="valign">center</property>
-                        <signal name="clicked" handler="on_clear_clicked" swapped="no"/>
+                        <property name="can_focus">False</property>
+                        <property name="label_xalign">0</property>
+                        <property name="shadow_type">in</property>
+                        <child>
+                          <object class="GtkAlignment">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="bottom_padding">10</property>
+                            <property name="left_padding">10</property>
+                            <property name="right_padding">10</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="spacing">6</property>
+                                <child>
+                                  <object class="GtkSpinButton" id="entry_rotation">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="max_length">4</property>
+                                    <property name="width_chars">4</property>
+                                    <property name="input_purpose">number</property>
+                                    <property name="adjustment">adj_rotation</property>
+                                    <property name="numeric">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkScale" id="scale_rotation">
+                                    <property name="width_request">186</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="adjustment">adj_rotation</property>
+                                    <property name="draw_value">False</property>
+                                    <signal name="value-changed" handler="on_scale_rotation_value_changed" swapped="no"/>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="margin_left">12</property>
+                            <property name="margin_right">12</property>
+                            <property name="label" translatable="yes">Rotation</property>
+                          </object>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="position">3</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="red">
-                        <property name="label" translatable="yes">red</property>
-                        <property name="width_request">55</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="halign">center</property>
-                        <property name="valign">center</property>
-                        <signal name="clicked" handler="on_red_clicked" swapped="no"/>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">4</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="green">
-                        <property name="label" translatable="yes">green</property>
-                        <property name="width_request">55</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="halign">center</property>
-                        <property name="valign">center</property>
-                        <signal name="clicked" handler="on_green_clicked" swapped="no"/>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">5</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="blue">
-                        <property name="label" translatable="yes">blue</property>
-                        <property name="width_request">55</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="halign">center</property>
-                        <property name="valign">center</property>
-                        <signal name="clicked" handler="on_blue_clicked" swapped="no"/>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">6</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="white">
-                        <property name="label" translatable="yes">white</property>
-                        <property name="width_request">55</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="halign">center</property>
-                        <property name="valign">center</property>
-                        <signal name="clicked" handler="on_white_clicked" swapped="no"/>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">7</property>
                       </packing>
                     </child>
                   </object>
@@ -678,6 +706,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="left_padding">12</property>
+                                <property name="right_padding">12</property>
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
@@ -1494,7 +1523,7 @@
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">2</property>
+                            <property name="position">3</property>
                           </packing>
                         </child>
                         <child>
@@ -1512,7 +1541,7 @@
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">3</property>
+                            <property name="position">4</property>
                           </packing>
                         </child>
                         <child>
@@ -1530,11 +1559,11 @@
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">4</property>
+                            <property name="position">5</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton">
+                          <object class="GtkButton" id="btn_text">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -1544,11 +1573,13 @@
                             <property name="relief">none</property>
                             <property name="xalign">0.5</property>
                             <property name="image_position">top</property>
+                            <signal name="focus-in-event" handler="on_btn_text_focus_in_event" swapped="no"/>
+                            <signal name="focus-out-event" handler="on_btn_text_focus_out_event" swapped="no"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">5</property>
+                            <property name="position">6</property>
                           </packing>
                         </child>
                         <child>
@@ -1566,7 +1597,7 @@
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">6</property>
+                            <property name="position">7</property>
                           </packing>
                         </child>
                       </object>
@@ -1616,8 +1647,8 @@
                             <property name="can_focus">False</property>
                             <property name="halign">center</property>
                             <property name="valign">center</property>
-                            <signal name="button-press-event" handler="on_draw_button_press_event" swapped="no"/>
                             <signal name="button-release-event" handler="on_draw_button_release_event" swapped="no"/>
+                            <signal name="button-release-event" handler="on_text_button_release_event" swapped="no"/>
                             <signal name="draw" handler="on_draw_event" swapped="no"/>
                             <signal name="motion-notify-event" handler="on_draw_motion_notify_event" swapped="no"/>
                           </object>

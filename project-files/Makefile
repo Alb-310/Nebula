@@ -21,7 +21,7 @@ GDLIB= -lgd -lpng -lz -ljpeg -lfreetype -lm
 LD=gcc
 LDFLAGS=$(PTHREAD) $(GDLIB) $(GTKLIB) -export-dynamic -rdynamic -lm
 
-OBJS=    src/.o/main.o src/.o/filters.o src/.o/image_settings.o src/.o/drawing.o
+OBJS=    src/.o/main.o src/.o/filters.o src/.o/image_settings.o src/.o/drawing.o src/.o/func_divers.o
 
 all: $(OBJS)
 	$(LD) -o $(TARGET) $(OBJS) $(LDFLAGS)
@@ -33,5 +33,7 @@ src/.o/image_settings.o: src/image_settings.c
 	$(CC) -c $(CCFLAGS) src/image_settings.c $(GDLIB) $(GTKLIB) -o src/.o/image_settings.o  
 src/.o/drawing.o: src/drawing.c
 	$(CC) -c $(CCFLAGS) src/drawing.c $(GDLIB) $(GTKLIB) -o src/.o/drawing.o
+src/.o/func_divers.o: src/func_divers.c
+	$(CC) -c $(CCFLAGS) src/func_divers.c $(GDLIB) $(GTKLIB) -o src/.o/func_divers.o
 clean:
 	rm -f src/.o/*.o $(TARGET) -r cache/*

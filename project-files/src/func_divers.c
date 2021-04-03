@@ -5,25 +5,17 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "func_divers.h"
-void Resize(char *filename, int width, int height)
+void Resize(gdImagePtr im, FILE *out, char *path, int width, int height)
 {
-	gdImagePtr im;
-	FILE *out;
-	out = fopen("result.png","wb");
-	im=gdImageCreateFromFile(filename);
+	out = fopen(path,"wb");
 	im=gdImageScale(im,width,height);
 	gdImagePng(im,out);
-	gdFree(im);
 	fclose(out);
 }
 
-void Crop(char *filename,int x, int y, int width,int height)
+void Crop(gdImagePtr im, FILE *out, char *path,int x, int y, int width,int height)
 {
-	gdImagePtr im;
-	FILE *out;
-	out = fopen("result.png","wb");
-	im= gdImageCreateFromFile(filename);
+	out = fopen(path,"wb");
 	gdRect *crop=malloc(sizeof(gdRect));
 
 	crop->x=x;
@@ -33,32 +25,23 @@ void Crop(char *filename,int x, int y, int width,int height)
 	im=gdImageCrop(im,crop);
 	gdImagePng(im,out);
 	gdFree(crop);
-	gdFree(im);
 	fclose(out);
 
 }
 
-void Rotate(char *filename,int angle)
+void Rotate(gdImagePtr im, FILE *out, char *path,int angle)
 {
-	gdImagePtr im;
-	FILE *out;
-	out = fopen("result.png","wb");
-	im=gdImageCreateFromFile(filename);
+	out = fopen(path,"wb");
 	im=gdImageRotateInterpolated(im,angle,0);
 	if(im==NULL)
 		errx(1,"rotation failure");
 	gdImagePng(im,out);
-
-	gdFree(im);
 	fclose(out);
 }
 
-void Add_text(char *filename,char *font,int x,int y,int width,int height,int color,double size,double angle,char* text)
+void Add_text(gdImagePtr im, FILE *out, char *path, char *font, int x, int y, int width, int height, int color, double size, double angle, char* text)
 {
-	gdImagePtr im;
-	FILE *out;
-	out = fopen("result.png","wb");
-	im= gdImageCreateFromFile(filename);
+	out = fopen(path,"wb");
 	int *brect = malloc(8*sizeof(int));
 	brect[0]=x;
 	brect[1]=y;
@@ -70,6 +53,13 @@ void Add_text(char *filename,char *font,int x,int y,int width,int height,int col
 	brect[7]=y+height;
 	gdImageStringFT(im,brect,color,font,size,angle,x,y,text);
 	gdImagePng(im,out);
-	gdFree(im);
 	fclose(out);
 }
+
+/*int main(int argc, char *argv[]){
+	gdImagePtr im = gdImageCreateFromFile(argv[1]);
+	FILE *out;
+	char *font = "/usr/share/fonts/truetype/ubuntu/Ubuntu-LI.ttf";
+	Add_text(im, out, "test.png", font, 10, 10+12, 200, 250, 0, 12, 0, "Test");
+	return 0;
+}*/

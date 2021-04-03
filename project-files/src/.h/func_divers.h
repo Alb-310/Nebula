@@ -1,13 +1,13 @@
 #ifndef FUNC_DIVERS_H
 #define FUNC_DIVERS_H
 
-void Resize(char *filename, int width, int height);
+void Resize(gdImagePtr im, FILE *out, char *path, int width, int height);
 
-void Crop(char *filename,int x,int y, int width,int height);
+void Crop(gdImagePtr im, FILE *out, char *path,int x,int y, int width,int height);
 
-void Rotate(char *filename,int angle);
+void Rotate(gdImagePtr im, FILE *out, char *path,int angle);
 
-void Add_text(char *filename,char *font,int x,int y,int width,int height,int color,double size,double angle,char* text);
+void Add_text(gdImagePtr im, FILE *out, char *path,char *font,int x,int y,int width,int height,int color,double size,double angle,char* text);
 
 #endif
 
