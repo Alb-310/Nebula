@@ -16,6 +16,29 @@ struct Color {
     int a;
 };
 
+struct BrushType {
+    int *pencil;
+    // int *marker;
+};
+
+void set_brush_type(gdImagePtr im, struct BrushType **b, struct Color *c)
+{
+    int pe = 4;
+    // int ma = 1;
+
+    (*b)->pencil = malloc(pe * sizeof(int));
+    // b->marker = malloc(ma * sizeof(int));
+
+    int p = gdImageColorAllocateAlpha(im, c->r, c->g, c->b, c->a);
+    int pc = gdImageColorAllocateAlpha(im, c->r, c->g, c->b, c->a + 15);
+    int pf = gdImageColorAllocateAlpha(im, c->r, c->g, c->b, c->a - 30);
+
+    (*b)->pencil[0] = p;
+    (*b)->pencil[1] = pc;
+    (*b)->pencil[2] = pf;
+    (*b)->pencil[3] = pc;
+}
+
 void set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c,int tks, int type, int zoom, char *path)
 {
     out = fopen(path, "wb");
@@ -27,7 +50,8 @@ void set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c,int tks, int type
         case 3: type_modif = 115; break;
         default: type_modif = 0; break;
     }
-    int color = gdImageColorAllocateAlpha(im, color_info->r, color_info->g, color_info->b, color_info->a + 127 + type_modif);
+    color_info->a = color_info->a + 127 + type_modif;
+    int color = gdImageColorAllocateAlpha(im, color_info->r, color_info->g, color_info->b, color_info->a);
     
     // tks *= zoom;
     int tks_modif;
@@ -69,16 +93,22 @@ void line_to (gdImagePtr im, FILE *out, void *point_list,
 
     gdImageSetThickness(im, tks);
 
+    struct BrushType *b = malloc(sizeof(struct BrushType));
+    set_brush_type(im, &b, color_info);
+    gdImageSetStyle(im, b->pencil, 4);
+
     while (point != NULL)
     {
         if(point->next == NULL)
             break;
         tmp = point;
         point = point->next;
-        gdImageLine(im, tmp->x, tmp->y, point->x, point->y, color);
+        gdImageLine(im, tmp->x, tmp->y, point->x, point->y, gdStyled);
     }  
     
     gdImagePng(im, out);
+    free(b->pencil);
+    free(b);
     fclose(out);
 }
 
