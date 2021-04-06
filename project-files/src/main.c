@@ -83,6 +83,11 @@ typedef struct {
     GtkWidget *w_check_glowfilter;
     GtkWidget *w_check_redflagfilter;
     GtkWidget *w_check_summertimefilter;
+    GtkWidget *w_cb_brush;
+    GtkWidget *w_cb_thickness;
+    GtkWidget *w_btn_color;
+    GtkWidget *w_btn_fill;
+    GtkWidget *w_btn_text;
     
     // Temp. image info
     GdkPixbuf *tmp_img;                 
@@ -166,6 +171,12 @@ int main(int argc, char *argv[])
     widgets->w_btn_resize = GTK_WIDGET(gtk_builder_get_object(builder, "btn_resize"));
     widgets->w_entry_rotation = GTK_WIDGET(gtk_builder_get_object(builder, "entry_rotation"));
     widgets->w_scale_rotation = GTK_WIDGET(gtk_builder_get_object(builder, "scale_rotation"));
+    widgets->w_cb_brush = GTK_WIDGET(gtk_builder_get_object(builder, "cb_brush"));
+    widgets->w_cb_thickness = GTK_WIDGET(gtk_builder_get_object(builder, "cb_thickness"));
+    widgets->w_btn_color = GTK_WIDGET(gtk_builder_get_object(builder, "btn_color"));
+    widgets->w_btn_text = GTK_WIDGET(gtk_builder_get_object(builder, "btn_text"));
+    widgets->w_btn_fill = GTK_WIDGET(gtk_builder_get_object(builder, "btn_fill"));
+
 
 
     gtk_builder_connect_signals(builder, widgets);
@@ -193,6 +204,11 @@ int main(int argc, char *argv[])
     gtk_widget_set_sensitive(widgets->w_entryH_crop, FALSE);
     gtk_widget_set_sensitive(widgets->w_entry_rotation, FALSE);
     gtk_widget_set_sensitive(widgets->w_scale_rotation, FALSE);
+    gtk_widget_set_sensitive(widgets->w_cb_brush, FALSE);
+    gtk_widget_set_sensitive(widgets->w_cb_thickness, FALSE);
+    gtk_widget_set_sensitive(widgets->w_btn_color, FALSE);
+    gtk_widget_set_sensitive(widgets->w_btn_fill, FALSE);
+    gtk_widget_set_sensitive(widgets->w_btn_text, FALSE);
     
 
     gtk_widget_show(widgets->w_window);                
@@ -351,6 +367,11 @@ int on_menubar_open_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
             gtk_widget_set_sensitive(app_wdgts->w_entryW_crop, TRUE);
             gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, TRUE);
             gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_cb_brush, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_color, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_fill, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_text, TRUE);
 
             // gets info of the image
             int img_w = gdImageSX(app_wdgts->gd_img);
@@ -479,6 +500,16 @@ int on_draw_event(GtkWidget *widget, cairo_t *cr, app_widgets *app_wdgts)
             gtk_widget_set_sensitive(app_wdgts->w_btn_resize, FALSE);
             gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, FALSE);
             gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, FALSE);
+            gtk_widget_set_sensitive(app_wdgts->w_cb_brush, FALSE);
+            gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, FALSE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
+
+            if(!app_wdgts->focus_fill)
+                gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
+
+            if(!app_wdgts->focus_text)
+                gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
+                
             gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
             if(start->next != NULL)
@@ -541,6 +572,13 @@ int on_draw_button_release_event(GtkWidget *widget, GdkEventButton *event, app_w
         fill(app_wdgts->gd_img, app_wdgts->gd_out, event->x, event->y,(void*)info_src, (void*)app_wdgts->color,
                             "cache/temp_img.png");
         free(info_src);
+        modif = 1;
+    }
+
+    else if(app_wdgts->focus_text){
+        char *font = "/usr/share/fonts/truetype/ubuntu/Ubuntu-LI.ttf";
+        int size = 12;
+	    Add_text(app_wdgts->gd_img, app_wdgts->gd_out, "cache/temp_img.png", font, event->x, event->y + size , 200, 200, 0, size, 0, "Test");
         modif = 1;
     }
 
@@ -640,6 +678,11 @@ int on_scale_brightness_value_changed(GtkMenuItem *menuitem, app_widgets *app_wd
     gtk_widget_set_sensitive(app_wdgts->w_btn_resize, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_brush, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     app_wdgts->gd_img = gdImageCreateFromFile("cache/cp_img.png");
@@ -667,6 +710,11 @@ int on_scale_contrast_value_changed(GtkMenuItem *menuitem, app_widgets *app_wdgt
     gtk_widget_set_sensitive(app_wdgts->w_btn_resize, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_brush, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     app_wdgts->gd_img = gdImageCreateFromFile("cache/cp_img.png");
@@ -694,6 +742,11 @@ int on_scale_temperature_value_changed(GtkMenuItem *menuitem, app_widgets *app_w
     gtk_widget_set_sensitive(app_wdgts->w_btn_resize, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_brush, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     app_wdgts->gd_img = gdImageCreateFromFile("cache/cp_img.png");
@@ -721,6 +774,11 @@ int on_entry_brightness_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
     gtk_widget_set_sensitive(app_wdgts->w_btn_resize, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_brush, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     on_scale_brightness_value_changed(menuitem, app_wdgts);
@@ -745,6 +803,11 @@ int on_entry_contrast_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
     gtk_widget_set_sensitive(app_wdgts->w_btn_resize, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_brush, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     on_scale_contrast_value_changed(menuitem, app_wdgts);
@@ -769,6 +832,11 @@ int on_entry_temperature_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
     gtk_widget_set_sensitive(app_wdgts->w_btn_resize, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_brush, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     on_scale_temperature_value_changed(menuitem, app_wdgts);
@@ -795,6 +863,11 @@ int on_btn_apply_clicked(GtkMenuItem *menuitem, app_widgets *app_wdgts)
     gtk_widget_set_sensitive(app_wdgts->w_btn_resize, TRUE);
     gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, TRUE);
     gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_brush, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_color, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_fill, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_text, TRUE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, FALSE);
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(app_wdgts->w_check_none), FALSE);
@@ -871,6 +944,11 @@ int on_check_oldschool_toggled(GtkToggleButton *togglebutton, app_widgets *app_w
         gtk_widget_set_sensitive(app_wdgts->w_btn_resize, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_cb_brush, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(app_wdgts->w_check_none), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(app_wdgts->w_check_glowfilter),FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(app_wdgts->w_check_redflagfilter), FALSE);
@@ -907,6 +985,11 @@ int on_check_summertimefilter_toggled(GtkToggleButton *togglebutton, app_widgets
         gtk_widget_set_sensitive(app_wdgts->w_btn_resize, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_cb_brush, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(app_wdgts->w_check_none), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(app_wdgts->w_check_oldschool), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(app_wdgts->w_check_glowfilter),FALSE);
@@ -943,6 +1026,11 @@ int on_check_glowfilter_toggled(GtkToggleButton *togglebutton, app_widgets *app_
         gtk_widget_set_sensitive(app_wdgts->w_btn_resize, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_cb_brush, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(app_wdgts->w_check_none), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(app_wdgts->w_check_oldschool), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(app_wdgts->w_check_redflagfilter), FALSE);
@@ -979,6 +1067,11 @@ int on_check_redflagfilter_toggled(GtkToggleButton *togglebutton, app_widgets *a
         gtk_widget_set_sensitive(app_wdgts->w_btn_resize, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_cb_brush, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(app_wdgts->w_check_none), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(app_wdgts->w_check_oldschool), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(app_wdgts->w_check_glowfilter),FALSE);
@@ -1027,6 +1120,11 @@ int on_btn_crop_clicked(GtkWidget *btn_crop, app_widgets *app_wdgts)
     gtk_widget_set_sensitive(app_wdgts->w_btn_resize, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);    
+    gtk_widget_set_sensitive(app_wdgts->w_cb_brush, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
 
     int input_w, input_h;
     input_w = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(app_wdgts->w_entryW_crop));
@@ -1067,6 +1165,11 @@ int on_btn_resize_clicked(GtkWidget *btn_resize, app_widgets *app_wdgts)
     gtk_widget_set_sensitive(app_wdgts->w_btn_crop, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_brush, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     int input_w, input_h;
@@ -1099,6 +1202,11 @@ int on_scale_rotation_value_changed(GtkWidget *entry_rotation, app_widgets *app_
     gtk_widget_set_sensitive(app_wdgts->w_check_summertimefilter, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_crop, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_resize, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_brush, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     Rotate(app_wdgts->gd_img, app_wdgts->gd_out, "cache/temp_img.png", gtk_range_get_value(GTK_RANGE(app_wdgts->w_scale_rotation)));
@@ -1122,19 +1230,6 @@ int on_btn_text_focus_out_event(GtkWidget *text_button, GdkEventButton *event, a
     app_wdgts->focus_text = 0;
     printf("%ld\n", sizeof(text_button));
     printf("%ld\n", sizeof(event));
-    return 0;
-}
-
-int on_text_button_release_event(GtkWidget *widget, GdkEventButton *event, app_widgets *app_wdgts){
-
-    printf("%ld\n", sizeof(widget));
-    if(app_wdgts->focus_text){
-        char *font = "/usr/share/fonts/truetype/ubuntu/Ubuntu-LI.ttf";
-        int size = 12;
-	    Add_text(app_wdgts->gd_img, app_wdgts->gd_out, "cache/temp_img.png", font, event->x, event->y + size , 200, 200, 0, size, 0, "Test");
-        app_wdgts->tmp_img = gdk_pixbuf_new_from_file("cache/temp_img.png", NULL);
-        update_buffer(app_wdgts);
-    }    
     return 0;
 }
 //
