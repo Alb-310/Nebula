@@ -1,31 +1,30 @@
 #include <stdio.h>
 #include "gd.h"
-#include "Filters.h"
+#include ".h/filters.h"
 
-void OldSchool_Filter(gdImagePtr image, FILE *Output )
+void OldSchool_Filter(gdImagePtr image, FILE *Output, char *path )
 {
-    Output = fopen ("temp.png", "wb");
+    Output = fopen (path, "wb");
     gdImageGrayScale(image);
     gdImagePng(image, Output);
     fclose (Output);
 }
 
-void Glow_Filter(gdImagePtr image, FILE *Output )
+void Glow_Filter(gdImagePtr image, FILE *Output, char *path )
 {
-    Output = fopen ("temp.png", "wb");
+    Output = fopen (path, "wb");
     gdImageNegate(image);
     gdImagePng(image, Output);
     fclose (Output);
 }
 
-void RedFlag_Filter(gdImagePtr image, FILE *Output )
+void RedFlag_Filter(gdImagePtr image, FILE *Output, char *path )
 {
-    Output = fopen ("temp.png", "wb");
+    Output = fopen (path, "wb");
     for (int y = 0; y < gdImageSY(image); y++)
     {
         for (int x = 0; x < gdImageSX(image); x++)
         {
-            int pixel = gdImageGetPixel(image,x,y);
             int truepixel = gdImageGetTrueColorPixel (image,x,y);
             int r = gdImageRed(image,truepixel);
             int b = gdImageBlue(image,truepixel);
@@ -66,9 +65,9 @@ void RedFlag_Filter(gdImagePtr image, FILE *Output )
 }
 
 
-void SummerTime_Filter(gdImagePtr image, FILE *Output )
+void SummerTime_Filter(gdImagePtr image, FILE *Output, char *path )
 {
-    Output = fopen ("temp.png", "wb");
+    Output = fopen (path, "wb");
     gdImageColor(image,20,0,0,0);
     gdImageBrightness(image,20);
     gdImageContrast(image,-20.2);
