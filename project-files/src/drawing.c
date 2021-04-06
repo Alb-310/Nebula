@@ -49,7 +49,7 @@ int set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c, int tks, int type
     
     switch(type){
         case 2: type_modif = 90; break;
-        case 3: type_modif = 60; tks_modif = 10; break;
+        case 3: type_modif = 60; tks_modif = 5; break;
         default: type_modif = 0; break;
     }
     int alpha_old = color_info->a;
