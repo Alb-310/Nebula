@@ -3,14 +3,14 @@
 ## Orion Nebula
 
 ### Software description:
-- Original author(s): Tom Termaat, André Hoang, Albert El Helou, Adrien Hicaubert
-- Developer(s): Orion
-- Operating system: Linux
-- Type: Raster graphics editor
-- Website: 
+- **Original author(s):** Tom Termaat, André Hoang, Albert El Helou, Adrien Hicaubert
+- **Developer(s):** Orion
+- **Operating system:** Linux
+- **Type: Raster graphics** editor
+- **Website:** https://rcaveinc.wixsite.com/website-2 
 
 ### Description:
-*Nebula* is a __computer-assisted editing, processing and drawing software__. It can be mainly used for __processing digital photographs__, but can also be used to __create images from scratch__.
+*Nebula* is a **computer-assisted editing, processing and drawing software**. It can be mainly used for **processing digital photographs**, but can also be used to **create images from scratch**.
 
 ## Repo content
 
@@ -36,5 +36,5 @@
 - You can use the command: *`make`* to do so
 
 #### Run the application
-- you can use the command: *`./nebula`* to do so
+- You can use the command: *`./nebula`* to do so
 
