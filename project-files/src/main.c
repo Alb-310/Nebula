@@ -1,7 +1,7 @@
 /*
  * Group: Orion
  * Project: Nebula
- * Developpers: Tom TERMAAT, André HOANG, Albert EL-HELOU, Adrien HICAUBERT
+ * Authors: Tom TERMAAT, André HOANG, Albert EL HELOU, Adrien HICAUBERT
  * Description: Orion Nebula is a raster graphics editor.
  */
 
