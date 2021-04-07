@@ -7,7 +7,7 @@
 - **Developer(s):** Orion
 - **Operating system:** Linux
 - **Type:** Raster graphics editor
-- **Website:** https://rcaveinc.wixsite.com/website-2 
+- **Website:** https://orion-projects.wixsite.com/orion
 
 ### Description:
 *Nebula* is a **computer-assisted editing, processing and drawing software**. It can be mainly used for **processing digital photographs**, but can also be used to **create images from scratch**.
