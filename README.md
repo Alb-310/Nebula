@@ -6,7 +6,7 @@
 - **Original author(s):** Tom Termaat, André Hoang, Albert El Helou, Adrien Hicaubert
 - **Developer(s):** Orion
 - **Operating system:** Linux
-- **Type: Raster graphics** editor
+- **Type: Raster graphics editor**
 - **Website:** https://rcaveinc.wixsite.com/website-2 
 
 ### Description:
