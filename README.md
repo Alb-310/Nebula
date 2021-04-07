@@ -36,7 +36,7 @@
 #### Go to `Nebula-S4/project-files/`
 - Inside the `Nebula-S4/` directory, you can use the command: *`cd project-files`*
 
-#### Compile the code by using the `Makefile`:
+#### Compile the code by using the `Makefile`
 - You can use the command: *`make`* to do so
 
 #### Run the application
