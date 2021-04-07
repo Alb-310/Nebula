@@ -12,7 +12,7 @@
 
 ### Description:
 
-**Nebula** is a __computer-assisted editing, processing and drawing software__. It can be mainly used for __processing digital photographs__, but can also be used to __create images from scratch__.
+*Nebula* is a __computer-assisted editing, processing and drawing software__. It can be mainly used for __processing digital photographs__, but can also be used to __create images from scratch__.
 
 ## Repo content
 
