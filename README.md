@@ -27,6 +27,10 @@
 
 ## Manual
 
+### Prerequisite:
+- GTK: https://www.gtk.org/
+- LibGD: https://libgd.github.io/
+
 ### Installation:
 
 #### Go to `Nebula-S4/project-files/`

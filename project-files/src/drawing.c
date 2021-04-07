@@ -39,7 +39,8 @@ void set_brush_type(gdImagePtr im, struct BrushType **b, struct Color *c)
     (*b)->pencil[3] = pc;
 }
 
-int set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c, int tks, int type, int zoom, char *path)
+int set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c, int tks, 
+                int type, int zoom, char *path)
 {
     printf("%ld\n", sizeof(zoom));
     out = fopen(path, "wb");
@@ -54,7 +55,8 @@ int set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c, int tks, int type
     }
     int alpha_old = color_info->a;
     color_info->a = color_info->a + 127 + type_modif;
-    int color = gdImageColorAllocateAlpha(im, color_info->r, color_info->g, color_info->b, color_info->a);
+    int color = gdImageColorAllocateAlpha(im, color_info->r,
+                    color_info->g, color_info->b, color_info->a);
     
     if(color == 0)
         errx(EXIT_FAILURE, "Couldn't create color.");
@@ -64,10 +66,17 @@ int set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c, int tks, int type
     printf("tks: %d\n", tks);
 
     switch(tks){
-        case 1: gdImageFilledRectangle(im, x - tks_modif, y - tks_modif, x + tks_modif, y + tks_modif, color); break;
-        case 3: gdImageFilledRectangle(im, x - 1 - tks_modif, y - 1 - tks_modif, x + 1 + tks_modif, y + 1 + tks_modif, color); break;
-        case 5: gdImageFilledRectangle(im, x - 2 - tks_modif, y - 2 - tks_modif, x + 2 + tks_modif, y + 2 + tks_modif, color); break;
-        case 7: gdImageFilledRectangle(im, x - 3 - tks_modif, y - 3 - tks_modif, x + 3 + tks_modif, y + 3 + tks_modif, color); break;
+        case 1: gdImageFilledRectangle(im, x - tks_modif, y - tks_modif,
+                                x + tks_modif, y + tks_modif, color); break;
+        case 3: gdImageFilledRectangle(im, x - 1 - tks_modif,
+                                y - 1 - tks_modif, x + 1 + tks_modif,
+                                y + 1 + tks_modif, color); break;
+        case 5: gdImageFilledRectangle(im, x - 2 - tks_modif,
+                                y - 2 - tks_modif, x + 2 + tks_modif,
+                                y + 2 + tks_modif, color); break;
+        case 7: gdImageFilledRectangle(im, x - 3 - tks_modif,
+                                y - 3 - tks_modif, x + 3 + tks_modif,
+                                y + 3 + tks_modif, color); break;
         default: errx(EXIT_FAILURE, "thickness is out of range.");
     }  
     
@@ -97,7 +106,9 @@ void line_to (gdImagePtr im, FILE *out, void *point_list,
     }
     int alpha_old = color_info->a;
     color_info->a = color_info->a + 127 + type_modif;
-    int color = gdImageColorAllocateAlpha(im, color_info->r, color_info->g, color_info->b, color_info->a);
+    int color = 
+        gdImageColorAllocateAlpha(im, color_info->r, color_info->g,
+                                    color_info->b, color_info->a);
 
     if(color == 0)
         errx(EXIT_FAILURE, "Couldn't create color.");
@@ -124,15 +135,18 @@ void line_to (gdImagePtr im, FILE *out, void *point_list,
     fclose(out);
 }
 
-void fill (gdImagePtr im, FILE *out, int x, int y, void* src, void* dst, char *path)
+void fill (gdImagePtr im, FILE *out, int x, int y, void* src, void* dst,
+                char *path)
 {
     out = fopen(path, "wb");
     struct Color *src_info = src;
     struct Color *dst_info = dst;
     int alpha_old = dst_info->a;
     dst_info->a = dst_info->a + 127;
-    int color_src = gdImageColorAllocateAlpha(im, src_info->r, src_info->g, src_info->b, src_info->a);
-    int color_dst = gdImageColorAllocateAlpha(im, dst_info->r, dst_info->g, dst_info->b, dst_info->a);
+    int color_src = gdImageColorAllocateAlpha(im, src_info->r, src_info->g,
+                                                src_info->b, src_info->a);
+    int color_dst = gdImageColorAllocateAlpha(im, dst_info->r, dst_info->g,
+                                                dst_info->b, dst_info->a);
     if(color_src == 0 || color_dst == 0)
         errx(EXIT_FAILURE, "Couldn't create color.");
 
