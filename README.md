@@ -19,11 +19,11 @@
 #### The directory `project-files` contains all the folders and files necessary for the correct functioning of the software:
 - `cache/`: contains temporary files stored by the software
 - `src/`: contains source codes of the sofware
-- `Makefile`: provided to make the software easely
+- `Makefile`: provided to build the software easely
 
 #### The directory `resources` contains files for the presentations
 
-#### The directory `test` contains files examples for the software
+#### The directory `test-files` contains files examples for the software
 
 ## Manual
 
