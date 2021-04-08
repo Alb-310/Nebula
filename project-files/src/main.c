@@ -5,7 +5,7 @@
  * Description: Orion Nebula is a raster graphics editor.
  */
 
-////#pragma region Include
+#pragma region Include
 
 #define _GNU_SOURCE
 
@@ -33,9 +33,9 @@
 #include ".h/drawing.h"
 #include ".h/func_divers.h"
 
-//#pragma endregion Include
+#pragma endregion Include
 
-//#pragma region Structure
+#pragma region Structure
 
 struct Point {
     int x;
@@ -116,9 +116,9 @@ typedef struct {
 
 } app_widgets;
 
-//#pragma endregion Structure
+#pragma endregion Structure
 
-//#pragma region Main
+#pragma region Main
 
 struct Point *p1, *p2, *start;
 
@@ -252,9 +252,9 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-//#pragma endregion Main
+#pragma endregion Main
 
-//#pragma region Utils
+#pragma region Utils
 
 //// Functions
 //
@@ -294,9 +294,9 @@ int free_point_struct(struct Point *head){
 //
 ////
 
-//#pragma endregion Utils
+#pragma endregion Utils
 
-//#pragma region Interface
+#pragma region Interface
 
 ////
 // Functions
@@ -512,9 +512,9 @@ int on_scale_zoom_value_changed(GtkMenuItem *menuitem, app_widgets *app_wdgts)
 //
 ////
 
-//#pragma endregion Interface
+#pragma endregion Interface
 
-//#pragma region Drawing
+#pragma region Drawing
 
 //// Functions
 //
@@ -726,9 +726,9 @@ int on_btn_fill_focus_out_event(GtkWidget *btn_fill, GdkEventMotion *event,
 //
 ////
 
-//#pragma endregion Drawing
+#pragma endregion Drawing
 
-//#pragma region ImageProcessing
+#pragma region ImageProcessing
 
 //// Functions
 //
@@ -1228,9 +1228,9 @@ int on_check_redflagfilter_toggled(GtkToggleButton *togglebutton,
 ////
 //
 
-//#pragma endregion ImageProcessing
+#pragma endregion ImageProcessing
 
-//#pragma region OthersFunctions
+#pragma region OthersFunctions
 
 //// CallbackFunctions
 //
@@ -1384,4 +1384,4 @@ int on_btn_text_focus_out_event(GtkWidget *text_button, GdkEventButton *event,
 //
 ////
 
-//#pragma endregion OthersFunctions
+#pragma endregion OthersFunctions
