@@ -9,6 +9,8 @@ void OldSchool_Filter(gdImagePtr image, FILE *Output, char *path );
 
 void RedFlag_Filter(gdImagePtr image, FILE *Output, char *path );
 
+void Vogue_Filter(gdImagePtr image, FILE *Output, char *path );
+
 
 
 #endif
