@@ -39,6 +39,7 @@ void Contrast(gdImagePtr image, double value, FILE *Output )
     fclose (Output);
 }
 
+
 void Noise (gdImagePtr image, int value, FILE *Output )
 {
     Output = fopen ("cache/temp.png", "wb");
@@ -102,3 +103,4 @@ void Sharpen(gdImagePtr image, double value, FILE *Output )
     gdImagePng(image, Output);
     fclose (Output);
 }
+
