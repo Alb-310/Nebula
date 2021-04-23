@@ -48,7 +48,6 @@ void Noise (gdImagePtr image, int value, FILE *Output )
     {
         for (int y = 0; y < image->sy; ++y)
         {
-            int pixel = gdImageGetPixel(image,x,y);
             int truepixel = gdImageGetTrueColorPixel (image,x,y);
             int r = gdImageRed(image,truepixel);
             int b = gdImageBlue(image,truepixel);
@@ -88,7 +87,7 @@ void Sharpen(gdImagePtr image, double value, FILE *Output )
 		{-1.0,5.0,-1.0},
 		{0.0,-1.0,0.0}};
 
-    if (value > 1 || value < 0,5)
+    if (value > 1.0 || value < 0.5)
     {
         gdImagePng(image, Output);
         fclose (Output);
