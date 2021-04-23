@@ -135,7 +135,7 @@ void line_to (gdImagePtr im, FILE *out, void *point_list,
     fclose(out);
 }
 
-void fill (gdImagePtr im, FILE *out, int x, int y, void* src, void* dst,
+void fill (gdImagePtr im, FILE *out, int x, int y, void *src, void *dst,
                 char *path)
 {
     out = fopen(path, "wb");
@@ -143,23 +143,24 @@ void fill (gdImagePtr im, FILE *out, int x, int y, void* src, void* dst,
     struct Color *dst_info = dst;
     int alpha_old = dst_info->a;
     dst_info->a = dst_info->a + 127;
-    int color_src = gdImageColorAllocateAlpha(im, src_info->r, src_info->g,
-                                                src_info->b, src_info->a);
-    int color_dst = gdImageColorAllocateAlpha(im, dst_info->r, dst_info->g,
-                                                dst_info->b, dst_info->a);
+
+    int color_src = gdImageColorAllocate(im, src_info->r, src_info->g, 
+                                                        src_info->b);
+    int color_dst = gdImageColorAllocate(im, dst_info->r, dst_info->g,
+                                                        dst_info->b);
     if(color_src == 0 || color_dst == 0)
         errx(EXIT_FAILURE, "Couldn't create color.");
-
+    
     int width = gdImageSX(im);
     int height = gdImageSY(im);
+    int born = 90;
 
     for(int i = 0; i < width; i++){
         for(int j = 0; j < height; j++){
-            int truepixel = gdImageGetTrueColorPixel(im,x,y);
+            int truepixel = gdImageGetTrueColorPixel(im,i,j);
             int r = gdImageRed(im,truepixel);
             int b = gdImageBlue(im,truepixel);
             int g = gdImageGreen(im,truepixel);
-            int born = 30;
             if(r >= src_info->r - born && r <= src_info->r + born 
                 && g >= src_info->g - born && g <= src_info->g + born
                 && b >= src_info->b - born && b <= src_info->b + born)
@@ -168,7 +169,30 @@ void fill (gdImagePtr im, FILE *out, int x, int y, void* src, void* dst,
             }
         }
     }
+
+    //gdImageFill(im, x, y, color_dst);
     gdImagePng(im, out);
     dst_info->a = alpha_old;
     fclose(out);
 }
+
+/*
+void main ()
+{
+    gdImagePtr im = gdImageCreateFromFile("../../test-files/buzz.jpg");
+    FILE *out;
+    struct Color *src_info = malloc(sizeof(struct Color));
+    struct Color *dst_info = malloc(sizeof(struct Color));
+    src_info->r = 50;
+    src_info->g = 50;
+    src_info->b = 200;
+    src_info->a = 255;
+    dst_info->r = 255;
+    dst_info->g = 255;
+    dst_info->b = 0;
+    dst_info->a = 255;
+    fill(im, out, 340, 210, (void*)src_info, (void*)dst_info, "final.png");
+    free(src_info);
+    free(dst_info);
+}
+*/
