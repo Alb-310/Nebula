@@ -51,6 +51,7 @@ int set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c, int tks,
     switch(type){
         case 2: type_modif = 90; break;
         case 3: type_modif = 60; tks_modif = 5; break;
+        case 4: type_modif = 110; break;
         default: type_modif = 0; break;
     }
     int alpha_old = color_info->a;
@@ -65,20 +66,26 @@ int set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c, int tks,
 
     printf("tks: %d\n", tks);
 
-    switch(tks){
-        case 1: gdImageFilledRectangle(im, x - tks_modif, y - tks_modif,
-                                x + tks_modif, y + tks_modif, color); break;
-        case 3: gdImageFilledRectangle(im, x - 1 - tks_modif,
-                                y - 1 - tks_modif, x + 1 + tks_modif,
-                                y + 1 + tks_modif, color); break;
-        case 5: gdImageFilledRectangle(im, x - 2 - tks_modif,
-                                y - 2 - tks_modif, x + 2 + tks_modif,
-                                y + 2 + tks_modif, color); break;
-        case 7: gdImageFilledRectangle(im, x - 3 - tks_modif,
-                                y - 3 - tks_modif, x + 3 + tks_modif,
-                                y + 3 + tks_modif, color); break;
-        default: errx(EXIT_FAILURE, "thickness is out of range.");
-    }  
+    if (type != 4)
+    {
+        switch(tks){
+            case 1: gdImageFilledRectangle(im, x - tks_modif, y - tks_modif,
+                                    x + tks_modif, y + tks_modif, color); break;
+            case 3: gdImageFilledRectangle(im, x - 1 - tks_modif,
+                                    y - 1 - tks_modif, x + 1 + tks_modif,
+                                    y + 1 + tks_modif, color); break;
+            case 5: gdImageFilledRectangle(im, x - 2 - tks_modif,
+                                    y - 2 - tks_modif, x + 2 + tks_modif,
+                                    y + 2 + tks_modif, color); break;
+            case 7: gdImageFilledRectangle(im, x - 3 - tks_modif,
+                                    y - 3 - tks_modif, x + 3 + tks_modif,
+                                    y + 3 + tks_modif, color); break;
+            default: errx(EXIT_FAILURE, "thickness is out of range.");
+        }  
+    }
+
+    else
+        gdImageFilledEllipse(im, x, y, tks, tks, color);
     
     gdImagePng(im, out);
     color_info->a = alpha_old;
@@ -102,6 +109,7 @@ void line_to (gdImagePtr im, FILE *out, void *point_list,
     switch(type){
         case 2: type_modif = 90; break;
         case 3: type_modif = 60; tks_modif = 10; break;
+        case 4: type_modif = 110; break;
         default: type_modif = 0; break;
     }
     int alpha_old = color_info->a;
@@ -114,6 +122,48 @@ void line_to (gdImagePtr im, FILE *out, void *point_list,
         errx(EXIT_FAILURE, "Couldn't create color.");
 
     gdImageSetThickness(im, tks + tks_modif);
+
+    /*struct BrushType *b = malloc(sizeof(struct BrushType));
+    set_brush_type(im, &b, color_info);
+    gdImageSetStyle(im, b->pencil, 4);*/
+
+    while (point != NULL)
+    {
+        if(point->next == NULL)
+            break;
+        tmp = point;
+        point = point->next;
+        gdImageLine(im, tmp->x, tmp->y, point->x, point->y, color);
+    }  
+    
+    gdImagePng(im, out);
+    color_info->a = alpha_old;
+    //free(b->pencil);
+    //free(b);
+    fclose(out);
+}
+
+void erase (gdImagePtr im, FILE *out, void *point_list, 
+                void* c, int tks, int type, int zoom, char *path)
+{
+    printf("%ld\n", sizeof(zoom));
+    out = fopen(path, "wb");
+    struct Color *color_info = c;    
+    int type_modif;
+    // tks *= zoom;
+    struct Point *tmp;
+    struct Point *point = point_list;
+
+    int alpha_old = color_info->a;
+    color_info->a = 0;
+    int color = 
+        gdImageColorAllocateAlpha(im, color_info->r, color_info->g,
+                                    color_info->b, color_info->a);
+
+    if(color == 0)
+        errx(EXIT_FAILURE, "Couldn't create color.");
+
+    gdImageSetThickness(im, tks);
 
     /*struct BrushType *b = malloc(sizeof(struct BrushType));
     set_brush_type(im, &b, color_info);
