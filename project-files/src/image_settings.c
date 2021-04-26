@@ -42,7 +42,7 @@ void Contrast(gdImagePtr image, double value, FILE *Output )
 
 void Noise (gdImagePtr image, int value, FILE *Output )
 {
-    Output = fopen ("cache/temp.png", "wb");
+    Output = fopen ("cache/temp_img.png", "wb");
 
     for (int x = 0; x < image->sx; ++x)
     {
@@ -80,7 +80,7 @@ void Noise (gdImagePtr image, int value, FILE *Output )
 void Sharpen(gdImagePtr image, double value, FILE *Output )
 {
     /* Fonction a test: Value doit etre entre 0.5 et 1 pour qu'il y'est un changement acceptable et si plus ou moin: aucun changement */
-    Output = fopen ("temp.png", "wb");
+    Output = fopen ("cache/temp_img.png", "wb");
     
     float filter[3][3] =	{
         {0.0,-1.0,0.0},
