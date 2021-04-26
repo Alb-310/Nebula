@@ -73,3 +73,18 @@ void Add_text(char *filename,char *font,int x,int y,int width,int height,int col
 	gdFree(im);
 	fclose(out);
 }
+
+void picture_insertion(char *filename_destination, char *filename_source,int dst_x,int dst_y)
+{
+	gdImagePtr src;
+	gdImagePtr dst;
+	FILE *out;
+	out = fopen("result.png","wb");
+	src = gdImageCreateFromFile(filename_source);
+	dst = gdImageCreateFromFile(filename_destination);
+	gdImageCopy(dst,src,dst_x,dst_y,0,0,gdImageSX(src),gdImageSY(src));
+	gdImagePng(dst,out);
+	gdFree(src);
+	gdFree(dst);
+	fclose(out);
+}
