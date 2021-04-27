@@ -74,13 +74,14 @@ void Add_text(char *filename,char *font,int x,int y,int width,int height,int col
 	fclose(out);
 }
 
-void picture_insertion(char *filename_destination, char *filename_source,int dst_x,int dst_y)
+void picture_insertion(char *filename_destination, char *filename_source,int dst_x,int dst_y,float src_dim_percent)
 {
 	gdImagePtr src;
 	gdImagePtr dst;
 	FILE *out;
 	out = fopen("result.png","wb");
 	src = gdImageCreateFromFile(filename_source);
+	src = gdImageScale(src,gdImageSX(src)*src_dim_percent,gdImageSY(src)*src_dim_percent);
 	dst = gdImageCreateFromFile(filename_destination);
 	gdImageCopy(dst,src,dst_x,dst_y,0,0,gdImageSX(src),gdImageSY(src));
 	gdImagePng(dst,out);
