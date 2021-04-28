@@ -182,6 +182,37 @@ void erase(gdImagePtr im, FILE *out, void *point_list,
     fclose(out);
 }
 
+void wipe(gdImagePtr im, FILE *out, void *point_list, void *array, int *dw_array, 
+                            int width, int tks, int zoom, char *path)
+{
+    printf("%ld\n", sizeof(zoom));
+    out = fopen(path, "wb");    
+    // tks *= zoom;
+    int tks_modif = 0;
+    struct Point *tmp;
+    struct Point *point = point_list;
+    int *cp_array = array;
+    
+    /*struct BrushType *b = malloc(sizeof(struct BrushType));
+    set_brush_type(im, &b, color_info);
+    gdImageSetStyle(im, b->pencil, 4);*/
+
+    while (point != NULL)
+    {
+        if(point->next == NULL)
+            break;
+        tmp = point;
+        point = point->next;
+        if (dw_array[tmp->x * width + tmp->y])
+        gdImageSetPixel(im, tmp->x, tmp->y, cp_array[tmp->x * width + tmp->y]);
+    }  
+    
+    gdImagePng(im, out);
+    //free(b->pencil);
+    //free(b);
+    fclose(out);
+}
+
 void fill (gdImagePtr im, FILE *out, int x, int y, void *src, void *dst,
                 char *path)
 {
