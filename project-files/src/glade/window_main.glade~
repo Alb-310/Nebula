@@ -80,6 +80,9 @@
       <row>
         <col id="0" translatable="yes">Marker</col>
       </row>
+      <row>
+        <col id="0" translatable="yes">Spray</col>
+      </row>
     </data>
   </object>
   <object class="GtkImage" id="logo">
@@ -246,21 +249,23 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkImageMenuItem">
+                      <object class="GtkImageMenuItem" id="btn_undo">
                         <property name="label">gtk-undo</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_btn_undo_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem">
+                      <object class="GtkImageMenuItem" id="btn_redo">
                         <property name="label">gtk-redo</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_btn_redo_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -1673,7 +1678,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton">
+                          <object class="GtkButton" id="btn_erase">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>

@@ -51,7 +51,7 @@ int set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c, int tks,
     switch(type){
         case 2: type_modif = 90; break;
         case 3: type_modif = 60; tks_modif = 5; break;
-        case 4: type_modif = 110; break;
+        case 4: type_modif = 110; tks *= 7; break;
         default: type_modif = 0; break;
     }
     int alpha_old = color_info->a;
@@ -108,8 +108,8 @@ void line_to (gdImagePtr im, FILE *out, void *point_list,
 
     switch(type){
         case 2: type_modif = 90; break;
-        case 3: type_modif = 60; tks_modif = 10; break;
-        case 4: type_modif = 110; break;
+        case 3: type_modif = 60; tks_modif = 5; break;
+        case 4: type_modif = 110; tks *= 7; break;
         default: type_modif = 0; break;
     }
     int alpha_old = color_info->a;
@@ -133,7 +133,10 @@ void line_to (gdImagePtr im, FILE *out, void *point_list,
             break;
         tmp = point;
         point = point->next;
-        gdImageLine(im, tmp->x, tmp->y, point->x, point->y, color);
+        if (type != 4)
+            gdImageLine(im, tmp->x, tmp->y, point->x, point->y, color);
+        else
+            gdImageFilledEllipse(im, tmp->x, tmp->y, tks, tks, color);
     }  
     
     gdImagePng(im, out);
@@ -143,27 +146,22 @@ void line_to (gdImagePtr im, FILE *out, void *point_list,
     fclose(out);
 }
 
-void erase (gdImagePtr im, FILE *out, void *point_list, 
-                void* c, int tks, int type, int zoom, char *path)
+void erase(gdImagePtr im, FILE *out, void *point_list, 
+                void* c, int tks, int zoom, char *path)
 {
     printf("%ld\n", sizeof(zoom));
     out = fopen(path, "wb");
     struct Color *color_info = c;    
-    int type_modif;
     // tks *= zoom;
+    int tks_modif = 0;
     struct Point *tmp;
     struct Point *point = point_list;
-
-    int alpha_old = color_info->a;
-    color_info->a = 0;
     int color = 
-        gdImageColorAllocateAlpha(im, color_info->r, color_info->g,
-                                    color_info->b, color_info->a);
+        gdImageColorAllocate(im, color_info->r, color_info->g,
+                                    color_info->b);
 
     if(color == 0)
         errx(EXIT_FAILURE, "Couldn't create color.");
-
-    gdImageSetThickness(im, tks);
 
     /*struct BrushType *b = malloc(sizeof(struct BrushType));
     set_brush_type(im, &b, color_info);
@@ -175,11 +173,10 @@ void erase (gdImagePtr im, FILE *out, void *point_list,
             break;
         tmp = point;
         point = point->next;
-        gdImageLine(im, tmp->x, tmp->y, point->x, point->y, color);
+        gdImageFilledEllipse(im, tmp->x, tmp->y, tks * 7, tks * 7, color);
     }  
     
     gdImagePng(im, out);
-    color_info->a = alpha_old;
     //free(b->pencil);
     //free(b);
     fclose(out);
