@@ -182,7 +182,7 @@ void erase(gdImagePtr im, FILE *out, void *point_list,
     fclose(out);
 }
 
-void wipe(gdImagePtr im, FILE *out, void *point_list, void *array, int *dw_array, 
+void wipe(gdImagePtr im, FILE *out, void *point_list, int *array, int *dw_array, 
                             int width, int tks, int zoom, char *path)
 {
     printf("%ld\n", sizeof(zoom));
@@ -204,7 +204,7 @@ void wipe(gdImagePtr im, FILE *out, void *point_list, void *array, int *dw_array
         tmp = point;
         point = point->next;
         if (dw_array[tmp->x * width + tmp->y])
-        gdImageSetPixel(im, tmp->x, tmp->y, cp_array[tmp->x * width + tmp->y]);
+            gdImageSetPixel(im, tmp->x, tmp->y, cp_array[tmp->x * width + tmp->y]);
     }  
     
     gdImagePng(im, out);
