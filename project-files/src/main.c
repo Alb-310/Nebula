@@ -153,6 +153,7 @@ int main(int argc, char *argv[])
     widgets->color = calloc(sizeof(struct Color), 0);
     widgets->gd_list = malloc(sizeof(struct gdImage_list));
     widgets->gd_list->img = NULL;
+    widgets->gd_list->next = NULL;
 
     p1 = start;
     widgets->focus_draw = 0;
@@ -456,7 +457,7 @@ int insert_gdImage_list(app_widgets *app_wdgts)
     new_gd->next = app_wdgts->gd_list;
 
     app_wdgts->gd_list = new_gd;
-    printf("insert - ");
+
     //print_list(app_wdgts->gd_list);
 
     return 0;
@@ -468,8 +469,6 @@ gdImagePtr pop_gdImage_list(app_widgets *app_wdgts)
     app_wdgts->gd_list = app_wdgts->gd_list->next;
     gdImagePtr img = app_wdgts->gd_list->img;
     free(tmp);
-    printf("pop - ");
-    //print_list(app_wdgts->gd_list);
     return img;
 }
 
@@ -544,7 +543,6 @@ int on_menubar_open_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
              app_wdgts->tmp_img, "cache/temp_img.png", "png", NULL, NULL, NULL);
 
             app_wdgts->gd_img = gdImageCreateFromFile("cache/cp_img.png");
-            insert_gdImage_list(app_wdgts);
 
             // Set sensitive to TRUE for all widgets
             gtk_widget_set_sensitive(app_wdgts->w_scale_brightness, TRUE);
@@ -591,7 +589,7 @@ int on_menubar_open_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
             app_wdgts->gd_w = img_w;
             app_wdgts->gd_h = img_h;
 
-            //init_color_array(app_wdgts);
+            init_color_array(app_wdgts);
 
             // Redraw the drawing area to display the image in the UI
             app_wdgts->cr_action = 0;
@@ -621,6 +619,8 @@ int on_menubar_open_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
                 app_wdgts->w_check_none), TRUE);
             update_all_prev(app_wdgts);
+
+            insert_gdImage_list(app_wdgts);
         }
         g_free(file_name);
     }
@@ -678,22 +678,21 @@ int on_btn_undo_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
 {
     printf("%ld\n", sizeof(menuitem));
 
-    if(app_wdgts->gd_list->next != NULL && app_wdgts->gd_list->next->img != NULL)
+    if(app_wdgts->gd_list->next->img != NULL)
     {
         gdImagePtr prev_gd = pop_gdImage_list(app_wdgts);
 
-        if(prev_gd != NULL)
-        {
-            app_wdgts->gd_img = prev_gd;
-            app_wdgts->gd_out = fopen("cache/cp_img.png", "w");
-            gdImagePng(app_wdgts->gd_img, app_wdgts->gd_out);
-            fclose(app_wdgts->gd_out);
-            app_wdgts->tmp_img = gdk_pixbuf_new_from_file("cache/cp_img.png", NULL);
-            gdk_pixbuf_savev(
-             app_wdgts->tmp_img, "cache/temp_img.png", "png", NULL, NULL, NULL);
-            update_buffer(app_wdgts);
-            update_all_prev(app_wdgts);
-        }
+        app_wdgts->gd_img = prev_gd;
+        app_wdgts->gd_out = fopen("cache/cp_img.png", "wb");
+        gdImagePng(app_wdgts->gd_img, app_wdgts->gd_out);
+        fclose(app_wdgts->gd_out);
+        app_wdgts->tmp_img = gdk_pixbuf_new_from_file("cache/cp_img.png", NULL);
+        app_wdgts->gd_img = gdImageCreateFromFile("cache/cp_img.png");
+        gdk_pixbuf_savev(
+            app_wdgts->tmp_img, "cache/temp_img.png", "png", NULL, NULL, NULL);
+        update_buffer(app_wdgts);
+        update_all_prev(app_wdgts);
+        //print_list(app_wdgts->gd_list);
     }
 
     return 0;
@@ -786,7 +785,7 @@ int on_draw_event(GtkWidget *widget, cairo_t *cr, app_widgets *app_wdgts)
 
             if(start->next != NULL)
             {
-                /*if(app_wdgts->focus_erase)
+                if(app_wdgts->focus_erase)
                 {
                     struct Color *info_src = malloc(sizeof(struct Color));
                     info_src->r = 255;
@@ -796,11 +795,11 @@ int on_draw_event(GtkWidget *widget, cairo_t *cr, app_widgets *app_wdgts)
                     (void*)info_src, app_wdgts->thickness,
                     app_wdgts->zoom, "cache/temp_img.png");
                 }
-                else*/ if(app_wdgts->focus_wipe)
+                else if(app_wdgts->focus_wipe)
                 {
                     wipe(app_wdgts->gd_img, app_wdgts->gd_out, (void*)start->next,
                     app_wdgts->color_array, app_wdgts->draw_array, app_wdgts->gd_w,
-                    app_wdgts->gd_h, app_wdgts->zoom, "cache/temp_img.png");
+                    app_wdgts->zoom, "cache/temp_img.png");
                 }
                 else{
                     line_to(app_wdgts->gd_img, app_wdgts->gd_out,
@@ -851,14 +850,6 @@ int on_draw_button_release_event(GtkWidget *widget, GdkEventButton *event,
         modif = 1;
     }
 
-    else if(app_wdgts->focus_draw){
-        set_pixel(app_wdgts->gd_img, app_wdgts->gd_out, event->x, event->y,
-            (void*)app_wdgts->color,
-                app_wdgts->thickness,
-                    app_wdgts->brush_type, 1, "cache/temp_img.png");
-        modif = 1;
-    }
-
     else if(app_wdgts->focus_fill){
         int truepixel = gdImageGetTrueColorPixel(
             app_wdgts->gd_img, event->x, event->y);
@@ -870,10 +861,17 @@ int on_draw_button_release_event(GtkWidget *widget, GdkEventButton *event,
         info_src->g = g;
         info_src->b = b;
         info_src->a = 0;
-        fill(app_wdgts->gd_img, app_wdgts->gd_out, event->x,
-            event->y,(void*)info_src, (void*)app_wdgts->color,
+        fill(app_wdgts->gd_img, app_wdgts->gd_out, (void*)info_src, (void*)app_wdgts->color,
                 "cache/temp_img.png");
         free(info_src);
+        modif = 1;
+    }
+
+    else if(app_wdgts->focus_draw){
+        set_pixel(app_wdgts->gd_img, app_wdgts->gd_out, event->x, event->y,
+            (void*)app_wdgts->color,
+                app_wdgts->thickness,
+                    app_wdgts->brush_type, 1, "cache/temp_img.png");
         modif = 1;
     }
 
@@ -1286,7 +1284,7 @@ int on_btn_apply_clicked(GtkMenuItem *menuitem, app_widgets *app_wdgts)
     {
         OldSchool_Filter(app_wdgts->gd_img,
             app_wdgts->gd_out, "cache/temp_img.png");
-        app_wdgts->tmp_img =
+            app_wdgts->tmp_img =
             gdk_pixbuf_new_from_file("cache/temp_img.png", NULL);
     }
 
