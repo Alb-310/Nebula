@@ -153,7 +153,7 @@ void erase(gdImagePtr im, FILE *out, void *point_list,
     out = fopen(path, "wb");
     struct Color *color_info = c;    
     // tks *= zoom;
-    int tks_modif = 0;
+    //int tks_modif = 0;
     struct Point *tmp;
     struct Point *point = point_list;
     int color = 
@@ -183,12 +183,11 @@ void erase(gdImagePtr im, FILE *out, void *point_list,
 }
 
 void wipe(gdImagePtr im, FILE *out, void *point_list, int *array, int *dw_array, 
-                            int width, int tks, int zoom, char *path)
+                            int width, int zoom, char *path)
 {
     printf("%ld\n", sizeof(zoom));
     out = fopen(path, "wb");    
     // tks *= zoom;
-    int tks_modif = 0;
     struct Point *tmp;
     struct Point *point = point_list;
     int *cp_array = array;
@@ -213,7 +212,7 @@ void wipe(gdImagePtr im, FILE *out, void *point_list, int *array, int *dw_array,
     fclose(out);
 }
 
-void fill (gdImagePtr im, FILE *out, int x, int y, void *src, void *dst,
+void fill (gdImagePtr im, FILE *out, void *src, void *dst,
                 char *path)
 {
     out = fopen(path, "wb");
