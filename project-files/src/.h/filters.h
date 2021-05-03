@@ -15,4 +15,5 @@ void WinterFrost_Filter(gdImagePtr image, FILE *Output, char *path);
 
 
 
+
 #endif
