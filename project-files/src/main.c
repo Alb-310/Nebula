@@ -850,6 +850,14 @@ int on_draw_button_release_event(GtkWidget *widget, GdkEventButton *event,
         modif = 1;
     }
 
+    else if(app_wdgts->focus_draw){
+        set_pixel(app_wdgts->gd_img, app_wdgts->gd_out, event->x, event->y,
+            (void*)app_wdgts->color,
+                app_wdgts->thickness,
+                    app_wdgts->brush_type, 1, "cache/temp_img.png");
+        modif = 1;
+    }
+
     else if(app_wdgts->focus_fill){
         int truepixel = gdImageGetTrueColorPixel(
             app_wdgts->gd_img, event->x, event->y);
@@ -864,14 +872,6 @@ int on_draw_button_release_event(GtkWidget *widget, GdkEventButton *event,
         fill(app_wdgts->gd_img, app_wdgts->gd_out, (void*)info_src, (void*)app_wdgts->color,
                 "cache/temp_img.png");
         free(info_src);
-        modif = 1;
-    }
-
-    else if(app_wdgts->focus_draw){
-        set_pixel(app_wdgts->gd_img, app_wdgts->gd_out, event->x, event->y,
-            (void*)app_wdgts->color,
-                app_wdgts->thickness,
-                    app_wdgts->brush_type, 1, "cache/temp_img.png");
         modif = 1;
     }
 

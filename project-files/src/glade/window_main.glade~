@@ -1264,7 +1264,7 @@
                                                     </child>
                                                     <child>
                                                       <object class="GtkCheckButton" id="check_vogue">
-                                                        <property name="label" translatable="yes">Filter 5</property>
+                                                        <property name="label" translatable="yes">Vogue</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
