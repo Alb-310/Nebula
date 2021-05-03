@@ -111,3 +111,15 @@ void Vogue_Filter(gdImagePtr image, FILE *Output, char *path )
     gdFree(cdr);
     fclose (Output);
 }
+
+void WinterFrost_Filter(gdImagePtr image, FILE *Output, char *path )
+{
+    Output = fopen (path, "wb");
+    gdImageColor(image,0,15,20,0);
+    gdImageContrast(image,-20);
+    gdImageBrightness(image,-10);
+
+
+    gdImagePng(image, Output);
+    fclose (Output);
+}
