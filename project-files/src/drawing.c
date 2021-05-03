@@ -51,6 +51,7 @@ int set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c, int tks,
     switch(type){
         case 2: type_modif = 90; break;
         case 3: type_modif = 60; tks_modif = 5; break;
+        case 4: type_modif = 110; tks *= 7; break;
         default: type_modif = 0; break;
     }
     int alpha_old = color_info->a;
@@ -65,20 +66,26 @@ int set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c, int tks,
 
     printf("tks: %d\n", tks);
 
-    switch(tks){
-        case 1: gdImageFilledRectangle(im, x - tks_modif, y - tks_modif,
-                                x + tks_modif, y + tks_modif, color); break;
-        case 3: gdImageFilledRectangle(im, x - 1 - tks_modif,
-                                y - 1 - tks_modif, x + 1 + tks_modif,
-                                y + 1 + tks_modif, color); break;
-        case 5: gdImageFilledRectangle(im, x - 2 - tks_modif,
-                                y - 2 - tks_modif, x + 2 + tks_modif,
-                                y + 2 + tks_modif, color); break;
-        case 7: gdImageFilledRectangle(im, x - 3 - tks_modif,
-                                y - 3 - tks_modif, x + 3 + tks_modif,
-                                y + 3 + tks_modif, color); break;
-        default: errx(EXIT_FAILURE, "thickness is out of range.");
-    }  
+    if (type != 4)
+    {
+        switch(tks){
+            case 1: gdImageFilledRectangle(im, x - tks_modif, y - tks_modif,
+                                    x + tks_modif, y + tks_modif, color); break;
+            case 3: gdImageFilledRectangle(im, x - 1 - tks_modif,
+                                    y - 1 - tks_modif, x + 1 + tks_modif,
+                                    y + 1 + tks_modif, color); break;
+            case 5: gdImageFilledRectangle(im, x - 2 - tks_modif,
+                                    y - 2 - tks_modif, x + 2 + tks_modif,
+                                    y + 2 + tks_modif, color); break;
+            case 7: gdImageFilledRectangle(im, x - 3 - tks_modif,
+                                    y - 3 - tks_modif, x + 3 + tks_modif,
+                                    y + 3 + tks_modif, color); break;
+            default: errx(EXIT_FAILURE, "thickness is out of range.");
+        }  
+    }
+
+    else
+        gdImageFilledEllipse(im, x, y, tks, tks, color);
     
     gdImagePng(im, out);
     color_info->a = alpha_old;
@@ -101,7 +108,8 @@ void line_to (gdImagePtr im, FILE *out, void *point_list,
 
     switch(type){
         case 2: type_modif = 90; break;
-        case 3: type_modif = 60; tks_modif = 10; break;
+        case 3: type_modif = 60; tks_modif = 5; break;
+        case 4: type_modif = 110; tks *= 7; break;
         default: type_modif = 0; break;
     }
     int alpha_old = color_info->a;
@@ -125,7 +133,10 @@ void line_to (gdImagePtr im, FILE *out, void *point_list,
             break;
         tmp = point;
         point = point->next;
-        gdImageLine(im, tmp->x, tmp->y, point->x, point->y, color);
+        if (type != 4)
+            gdImageLine(im, tmp->x, tmp->y, point->x, point->y, color);
+        else
+            gdImageFilledEllipse(im, tmp->x, tmp->y, tks, tks, color);
     }  
     
     gdImagePng(im, out);
@@ -135,7 +146,74 @@ void line_to (gdImagePtr im, FILE *out, void *point_list,
     fclose(out);
 }
 
-void fill (gdImagePtr im, FILE *out, int x, int y, void* src, void* dst,
+void erase(gdImagePtr im, FILE *out, void *point_list, 
+                void* c, int tks, int zoom, char *path)
+{
+    printf("%ld\n", sizeof(zoom));
+    out = fopen(path, "wb");
+    struct Color *color_info = c;    
+    // tks *= zoom;
+    int tks_modif = 0;
+    struct Point *tmp;
+    struct Point *point = point_list;
+    int color = 
+        gdImageColorAllocate(im, color_info->r, color_info->g,
+                                    color_info->b);
+
+    if(color == 0)
+        errx(EXIT_FAILURE, "Couldn't create color.");
+
+    /*struct BrushType *b = malloc(sizeof(struct BrushType));
+    set_brush_type(im, &b, color_info);
+    gdImageSetStyle(im, b->pencil, 4);*/
+
+    while (point != NULL)
+    {
+        if(point->next == NULL)
+            break;
+        tmp = point;
+        point = point->next;
+        gdImageFilledEllipse(im, tmp->x, tmp->y, tks * 7, tks * 7, color);
+    }  
+    
+    gdImagePng(im, out);
+    //free(b->pencil);
+    //free(b);
+    fclose(out);
+}
+
+void wipe(gdImagePtr im, FILE *out, void *point_list, int *array, int *dw_array, 
+                            int width, int tks, int zoom, char *path)
+{
+    printf("%ld\n", sizeof(zoom));
+    out = fopen(path, "wb");    
+    // tks *= zoom;
+    int tks_modif = 0;
+    struct Point *tmp;
+    struct Point *point = point_list;
+    int *cp_array = array;
+    
+    /*struct BrushType *b = malloc(sizeof(struct BrushType));
+    set_brush_type(im, &b, color_info);
+    gdImageSetStyle(im, b->pencil, 4);*/
+
+    while (point != NULL)
+    {
+        if(point->next == NULL)
+            break;
+        tmp = point;
+        point = point->next;
+        if (dw_array[tmp->x * width + tmp->y])
+            gdImageSetPixel(im, tmp->x, tmp->y, cp_array[tmp->x * width + tmp->y]);
+    }  
+    
+    gdImagePng(im, out);
+    //free(b->pencil);
+    //free(b);
+    fclose(out);
+}
+
+void fill (gdImagePtr im, FILE *out, int x, int y, void *src, void *dst,
                 char *path)
 {
     out = fopen(path, "wb");
@@ -143,23 +221,24 @@ void fill (gdImagePtr im, FILE *out, int x, int y, void* src, void* dst,
     struct Color *dst_info = dst;
     int alpha_old = dst_info->a;
     dst_info->a = dst_info->a + 127;
-    int color_src = gdImageColorAllocateAlpha(im, src_info->r, src_info->g,
-                                                src_info->b, src_info->a);
-    int color_dst = gdImageColorAllocateAlpha(im, dst_info->r, dst_info->g,
-                                                dst_info->b, dst_info->a);
+
+    int color_src = gdImageColorAllocate(im, src_info->r, src_info->g, 
+                                                        src_info->b);
+    int color_dst = gdImageColorAllocate(im, dst_info->r, dst_info->g,
+                                                        dst_info->b);
     if(color_src == 0 || color_dst == 0)
         errx(EXIT_FAILURE, "Couldn't create color.");
-
+    
     int width = gdImageSX(im);
     int height = gdImageSY(im);
+    int born = 90;
 
     for(int i = 0; i < width; i++){
         for(int j = 0; j < height; j++){
-            int truepixel = gdImageGetTrueColorPixel(im,x,y);
+            int truepixel = gdImageGetTrueColorPixel(im,i,j);
             int r = gdImageRed(im,truepixel);
             int b = gdImageBlue(im,truepixel);
             int g = gdImageGreen(im,truepixel);
-            int born = 30;
             if(r >= src_info->r - born && r <= src_info->r + born 
                 && g >= src_info->g - born && g <= src_info->g + born
                 && b >= src_info->b - born && b <= src_info->b + born)
@@ -168,7 +247,30 @@ void fill (gdImagePtr im, FILE *out, int x, int y, void* src, void* dst,
             }
         }
     }
+
+    //gdImageFill(im, x, y, color_dst);
     gdImagePng(im, out);
     dst_info->a = alpha_old;
     fclose(out);
 }
+
+/*
+void main ()
+{
+    gdImagePtr im = gdImageCreateFromFile("../../test-files/buzz.jpg");
+    FILE *out;
+    struct Color *src_info = malloc(sizeof(struct Color));
+    struct Color *dst_info = malloc(sizeof(struct Color));
+    src_info->r = 50;
+    src_info->g = 50;
+    src_info->b = 200;
+    src_info->a = 255;
+    dst_info->r = 255;
+    dst_info->g = 255;
+    dst_info->b = 0;
+    dst_info->a = 255;
+    fill(im, out, 340, 210, (void*)src_info, (void*)dst_info, "final.png");
+    free(src_info);
+    free(dst_info);
+}
+*/

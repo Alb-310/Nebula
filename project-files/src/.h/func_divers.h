@@ -9,5 +9,6 @@ void Rotate(gdImagePtr im, FILE *out, char *path,int angle);
 
 void Add_text(gdImagePtr im, FILE *out, char *path,char *font,int x,int y,int width,int height,int color,double size,double angle,char* text);
 
+void picture_insertion(char *filename_destination,char *filename_source,int dst_x,int dst_y,float src_dim_percent);
 #endif
 

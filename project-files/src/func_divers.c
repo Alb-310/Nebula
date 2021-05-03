@@ -59,10 +59,18 @@ void Add_text(gdImagePtr im, FILE *out, char *path, char *font, int x,
 	fclose(out);
 }
 
-/*int main(int argc, char *argv[]){
-	gdImagePtr im = gdImageCreateFromFile(argv[1]);
+void picture_insertion(char *filename_destination, char *filename_source,int dst_x,int dst_y,float src_dim_percent)
+{
+	gdImagePtr src;
+	gdImagePtr dst;
 	FILE *out;
-	char *font = "/usr/share/fonts/truetype/ubuntu/Ubuntu-LI.ttf";
-	Add_text(im, out, "test.png", font, 10, 10+12, 200, 250, 0, 12, 0, "Test");
-	return 0;
-}*/
+	out = fopen("result.png","wb");
+	src = gdImageCreateFromFile(filename_source);
+	src = gdImageScale(src,gdImageSX(src)*src_dim_percent,gdImageSY(src)*src_dim_percent);
+	dst = gdImageCreateFromFile(filename_destination);
+	gdImageCopy(dst,src,dst_x,dst_y,0,0,gdImageSX(src),gdImageSY(src));
+	gdImagePng(dst,out);
+	gdFree(src);
+	gdFree(dst);
+	fclose(out);
+}
