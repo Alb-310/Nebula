@@ -5,25 +5,18 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "func_divers.h"
-void Resize(char *filename, int width, int height)
+void Resize(gdImagePtr im, FILE *out, char *path, int width, int height)
 {
-	gdImagePtr im;
-	FILE *out;
-	out = fopen("result.png","wb");
-	im=gdImageCreateFromFile(filename);
+	out = fopen(path,"wb");
 	im=gdImageScale(im,width,height);
 	gdImagePng(im,out);
-	gdFree(im);
 	fclose(out);
 }
 
-void Crop(char *filename,int x, int y, int width,int height)
+void Crop(gdImagePtr im, FILE *out, char *path,int x, int y, int width,
+            int height)
 {
-	gdImagePtr im;
-	FILE *out;
-	out = fopen("result.png","wb");
-	im= gdImageCreateFromFile(filename);
+	out = fopen(path,"wb");
 	gdRect *crop=malloc(sizeof(gdRect));
 
 	crop->x=x;
@@ -33,32 +26,25 @@ void Crop(char *filename,int x, int y, int width,int height)
 	im=gdImageCrop(im,crop);
 	gdImagePng(im,out);
 	gdFree(crop);
-	gdFree(im);
 	fclose(out);
 
 }
 
-void Rotate(char *filename,int angle)
+void Rotate(gdImagePtr im, FILE *out, char *path,int angle)
 {
-	gdImagePtr im;
-	FILE *out;
-	out = fopen("result.png","wb");
-	im=gdImageCreateFromFile(filename);
+	out = fopen(path,"wb");
 	im=gdImageRotateInterpolated(im,angle,0);
 	if(im==NULL)
 		errx(1,"rotation failure");
 	gdImagePng(im,out);
-
-	gdFree(im);
 	fclose(out);
 }
 
-void Add_text(char *filename,char *font,int x,int y,int width,int height,int color,double size,double angle,char* text)
+void Add_text(gdImagePtr im, FILE *out, char *path, char *font, int x,
+                int y, int width, int height, int color, double size,
+                        double angle, char* text)
 {
-	gdImagePtr im;
-	FILE *out;
-	out = fopen("result.png","wb");
-	im= gdImageCreateFromFile(filename);
+	out = fopen(path,"wb");
 	int *brect = malloc(8*sizeof(int));
 	brect[0]=x;
 	brect[1]=y;
@@ -70,7 +56,6 @@ void Add_text(char *filename,char *font,int x,int y,int width,int height,int col
 	brect[7]=y+height;
 	gdImageStringFT(im,brect,color,font,size,angle,x,y,text);
 	gdImagePng(im,out);
-	gdFree(im);
 	fclose(out);
 }
 
@@ -85,34 +70,30 @@ void picture_insertion(gdImagePtr src, FILE *out, gdImagePtr dst, char *path, in
 	fclose(out);
 }
 
-void add_motif(char *filename_destination, char *motif,int dst_x,int dst_y,float src_dim_percent)
+void add_motif(gdImagePtr dst, FILE *out, char* path, char *motif,int dst_x,int dst_y,float src_dim_percent)
 {
 	gdImagePtr src;
-	gdImagePtr dst;
-	FILE *out;
 	char *filename_source;
-	out = fopen("result.png","wb");
+	out = fopen(path,"wb");
 	if(strcmp("square",motif)==0)
-		filename_source="../resources/func_divers/square.png";
+		filename_source="src/resources/func_divers/square.png";
 	else if(strcmp("circle",motif)==0)
-		filename_source="../resources/func_divers/circle.png";
+		filename_source="src/resources/func_divers/circle.png";
 	else if(strcmp("triangle",motif)==0)
-		filename_source="../resources/func_divers/triangle.png";
+		filename_source="src/resources/func_divers/triangle.png";
 	else if(strcmp("pentagon",motif)==0)
-		filename_source="../resources/func_divers/pentagon.png";
+		filename_source="src/resources/func_divers/pentagon.png";
 	else if(strcmp("star",motif)==0)
-		filename_source="../resources/func_divers/star.png";
+		filename_source="src/resources/func_divers/star.png";
 	else if(strcmp("heart",motif)==0)
-		filename_source="../resources/func_divers/heart.png";
+		filename_source="src/resources/func_divers/heart.png";
 	else
 		errx(1,"wrong motif argument given");
 	src = gdImageCreateFromFile(filename_source);
 	src = gdImageScale(src,gdImageSX(src)*src_dim_percent,gdImageSY(src)*src_dim_percent);
-	dst = gdImageCreateFromFile(filename_destination);
-	gdImageCopy(dst,src,dst_x,dst_y,0,0,gdImageSX(src),gdImageSY(src));
+	int width = gdImageSX(src);
+	int height = gdImageSY(src);
+	gdImageCopy(dst,src,dst_x - (width/2), dst_y - (height/2),0,0,gdImageSX(src),gdImageSY(src));
 	gdImagePng(dst,out);
-	gdFree(src);
-	gdFree(dst);
 	fclose(out);
 }
-

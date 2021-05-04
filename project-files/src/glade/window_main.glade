@@ -1772,6 +1772,8 @@
                             <property name="relief">none</property>
                             <property name="xalign">0.5</property>
                             <property name="image_position">top</property>
+                            <signal name="focus-in-event" handler="on_btn_motif_focus_in_event" swapped="no"/>
+                            <signal name="focus-out-event" handler="on_btn_motif_focus_out_event" swapped="no"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
