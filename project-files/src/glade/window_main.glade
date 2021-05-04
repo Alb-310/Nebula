@@ -280,21 +280,12 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem">
-                        <property name="label">gtk-paste</property>
+                      <object class="GtkImageMenuItem" id="btn_add">
+                        <property name="label">gtk-add</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkImageMenuItem">
-                        <property name="label">gtk-delete</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_btn_add_activate" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -1175,7 +1166,7 @@
                             <property name="spacing">6</property>
                             <child>
                               <object class="GtkFrame">
-                                <property name="height_request">425</property>
+                                <property name="height_request">325</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label_xalign">0</property>
@@ -1771,7 +1762,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton">
+                          <object class="GtkButton" id="btn_motif">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -1781,6 +1772,8 @@
                             <property name="relief">none</property>
                             <property name="xalign">0.5</property>
                             <property name="image_position">top</property>
+                            <signal name="focus-in-event" handler="on_btn_motif_focus_in_event" swapped="no"/>
+                            <signal name="focus-out-event" handler="on_btn_motif_focus_out_event" swapped="no"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
