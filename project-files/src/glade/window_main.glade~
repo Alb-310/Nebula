@@ -199,6 +199,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_menubar_new_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -284,6 +285,7 @@
                         <property name="label">gtk-add</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_btn_add_activate" swapped="no"/>
                       </object>
@@ -1192,6 +1194,8 @@
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="valign">start</property>
+                                                <property name="row_spacing">3</property>
+                                                <property name="column_spacing">3</property>
                                                 <child>
                                                   <object class="GtkBox">
                                                     <property name="visible">True</property>
