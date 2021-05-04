@@ -679,6 +679,7 @@ int on_menubar_open_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
 
 int on_menubar_new_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
 {
+    printf("%ld\n", sizeof(menuitem));
     GdkPixbuf *new_img = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, 800, 800);
     gdk_pixbuf_fill(new_img, 0xffffffff);
     app_wdgts->tmp_img = new_img;
