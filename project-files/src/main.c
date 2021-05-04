@@ -94,6 +94,7 @@ typedef struct {
     GtkWidget *w_check_glowfilter;
     GtkWidget *w_check_redflagfilter;
     GtkWidget *w_check_summertimefilter;
+    GtkWidget *w_check_vogue;
     GtkWidget *w_check_winterfrost;
     GtkWidget *w_cb_brush;
     GtkWidget *w_cb_thickness;
@@ -102,7 +103,7 @@ typedef struct {
     GtkWidget *w_btn_text;
     GtkWidget *w_btn_erase;
     GtkWidget *w_btn_wipe;
-    GtkWidget *w_check_vogue;
+    GtkWidget *w_btn_motif;
 
     int *color_array;
     int *draw_array;
@@ -121,6 +122,11 @@ typedef struct {
     // undo / redo
     struct gdImage_list *gd_list;
 
+    // Image to insert
+    gdImagePtr insert_img;
+    int insert_img_w;
+    int insert_img_h;
+
     // Drawing info
     int brush_type;
     int thickness;
@@ -135,6 +141,8 @@ typedef struct {
     int focus_draw;
     int focus_erase;
     int focus_wipe;
+    int focus_motif;
+    int insert_img_select;
 
 } app_widgets;
 
@@ -165,6 +173,7 @@ int main(int argc, char *argv[])
 
     widgets->cr_action = 0;
     widgets->thickness = 1;
+    widgets->insert_img_select = 0;
 
     gtk_init(&argc, &argv);
 
@@ -649,6 +658,39 @@ int on_menubar_open_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
     return 0;
 }
 
+int on_btn_add_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(menuitem));
+    // Show the "Open Image" dialog box
+    gtk_widget_show(app_wdgts->w_dlg_file_choose);
+
+    // Check return value from Open Image dialog box to 
+    // see if user clicked the Open button
+    if (gtk_dialog_run(
+            GTK_DIALOG (app_wdgts->w_dlg_file_choose)) == GTK_RESPONSE_OK) {
+
+        // Get the file name from the dialog box
+        char *file_name = gtk_file_chooser_get_filename(
+            GTK_FILE_CHOOSER(app_wdgts->w_dlg_file_choose));
+        if (file_name != NULL) {
+
+            app_wdgts->insert_img = gdImageCreateFromFile(file_name);
+
+            // gets info of the image
+            app_wdgts->insert_img_w = gdImageSX(app_wdgts->insert_img) / 2;
+            app_wdgts->insert_img_h = gdImageSY(app_wdgts->insert_img) / 2;
+
+            app_wdgts->insert_img_select = 1;
+        }
+        g_free(file_name);
+    }
+
+    // Finished with the "Open Image" dialog box, so hide it
+    gtk_widget_hide(app_wdgts->w_dlg_file_choose);
+
+    return 0;
+}
+
 void on_menubar_quit_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
 {
     printf("%ld\n", sizeof(menuitem));
@@ -860,7 +902,14 @@ int on_draw_button_release_event(GtkWidget *widget, GdkEventButton *event,
     printf("%ld\n", sizeof(widget));
     int modif = 0;
 
-    if(app_wdgts->focus_erase){
+    if (app_wdgts->insert_img_select)
+    {
+        picture_insertion(app_wdgts->insert_img, app_wdgts->gd_out,
+                            app_wdgts->gd_img, "cache/temp_img.png",
+                            event->x, event->y, 0.25);
+        modif = 1;
+    }
+    else if(app_wdgts->focus_erase){
         modif = 1;
     }
 
@@ -898,6 +947,11 @@ int on_draw_button_release_event(GtkWidget *widget, GdkEventButton *event,
         int size = 12;
         Add_text(app_wdgts->gd_img, app_wdgts->gd_out, "cache/temp_img.png",
             font, event->x, event->y + size , 200, 200, 0, size, 0, "Test");
+        modif = 1;
+    }
+
+    else if(app_wdgts->focus_motif){
+        
         modif = 1;
     }
 
@@ -1008,6 +1062,27 @@ int on_btn_wipe_focus_out_event(GtkWidget *btn_fill, GdkEventMotion *event,
     app_wdgts->focus_wipe = 0;
     return 0;
 }
+
+int on_btn_motif_focus_in_event(GtkWidget *btn_fill, GdkEventMotion *event,
+                                app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(btn_fill));
+    printf("%ld\n", sizeof(event));
+    printf("%ld\n", sizeof(app_wdgts));
+    app_wdgts->focus_motif = 1;
+    return 0;
+}
+
+int on_btn_motif_focus_out_event(GtkWidget *btn_fill, GdkEventMotion *event,
+                                    app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(btn_fill));
+    printf("%ld\n", sizeof(event));
+    printf("%ld\n", sizeof(app_wdgts));
+    app_wdgts->focus_motif = 0;
+    return 0;
+}
+
 //
 
 // #pragma endregion Drawing
@@ -1367,6 +1442,7 @@ int on_btn_apply_clicked(GtkMenuItem *menuitem, app_widgets *app_wdgts)
     app_wdgts->gd_img = gdImageCreateFromFile("cache/cp_img.png");
     app_wdgts->gd_w = app_wdgts->tmp_w;
     app_wdgts->gd_h = app_wdgts->tmp_h;
+    app_wdgts->insert_img_select = 0;
     insert_gdImage_list(app_wdgts);
     update_buffer(app_wdgts);
     update_all_prev(app_wdgts);

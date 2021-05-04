@@ -1762,7 +1762,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton">
+                          <object class="GtkButton" id="btn_motif">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -1772,6 +1772,8 @@
                             <property name="relief">none</property>
                             <property name="xalign">0.5</property>
                             <property name="image_position">top</property>
+                            <signal name="focus-in-event" handler="on_btn_motif_focus_in_event" swapped="no"/>
+                            <signal name="focus-in-event" handler="on_btn_motif_focus_in_event" swapped="no"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
