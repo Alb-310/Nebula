@@ -50,6 +50,13 @@ struct Color {
     int a;
 };
 
+struct Cairo_color {
+    double r;
+    double g;
+    double b;
+    double a;
+};
+
 struct gdImage_list {
     gdImagePtr img;
     struct gdImage_list *next;
@@ -131,6 +138,7 @@ typedef struct {
     int brush_type;
     int thickness;
     struct Color *color; 
+    struct Cairo_color *color_get;
     int cr_action; 
 
     // global variables
@@ -150,22 +158,26 @@ typedef struct {
 
 #pragma  region Main
 
-struct Point *p1, *p2, *start;
+struct Point *p1, *p2, *start, *start2;
 
 int main(int argc, char *argv[])
 {
     GtkBuilder      *builder;
     app_widgets     *widgets = g_slice_new(app_widgets);
 
-    p1 = p2 = start = NULL;
+    p1 = p2 = start = start2 = NULL;
     start = malloc(sizeof(struct Point));
     memset(start, 0, sizeof(struct Point));
+    start2 = malloc(sizeof(struct Point));
+    memset(start2, 0, sizeof(struct Point));
     widgets->color = calloc(sizeof(struct Color), 0);
+    widgets->color_get = calloc(sizeof(struct Color), 0);
     widgets->gd_list = malloc(sizeof(struct gdImage_list));
     widgets->gd_list->img = NULL;
     widgets->gd_list->next = NULL;
 
     p1 = start;
+    p2 = start2;
     widgets->focus_draw = 0;
     widgets->focus_fill = 0;
     widgets->focus_erase = 0;
@@ -871,13 +883,20 @@ static void draw_brush(GtkWidget *widget, gdouble x, gdouble y,
     }
     else if(app_wdgts->focus_draw){
         struct Point *new_p = malloc(sizeof(struct Point));
-        if(new_p == NULL) { printf("out of memory\n"); abort(); }
+        struct Point *new_p2 = malloc(sizeof(struct Point));
+        if(new_p == NULL || new_p2 == NULL) { printf("out of memory\n"); abort(); }
         new_p->x = x;
         new_p->y = y;
         new_p->next = NULL;
+        new_p2->x = x;
+        new_p2->y = y;
+        new_p2->next = NULL;
         p1->next = new_p;
         p1 = p1->next;
+        p2->next = new_p2;
+        p2 = p2->next;
         app_wdgts->draw_array[(int)x * app_wdgts->gd_w + (int)y] = 1;
+        gtk_widget_queue_draw(app_wdgts->w_drawing_aera);
     }
 }
 
@@ -949,14 +968,42 @@ int on_draw_event(GtkWidget *widget, cairo_t *cr, app_widgets *app_wdgts)
                             (void *)start->next, (void *)app_wdgts->color,
                             app_wdgts->thickness,
                             app_wdgts->brush_type, 1, "cache/temp_img.png");
+
+                    if(start2 != NULL)    
+                        free_point_struct(start2);
+                        start2 = malloc(sizeof(struct Point));
+                        memset(start2, 0, sizeof(struct Point));
+                        p2 = start2;
                 }
-                free_point_struct(start->next);
+                if(start != NULL)
+                        free_point_struct(start->next);
             }
 
             app_wdgts->tmp_img = gdk_pixbuf_new_from_file("cache/temp_img.png", NULL);
             update_buffer(app_wdgts);
         }
+        else if(app_wdgts->focus_draw && start2->next != NULL){
+                struct Point *point = start2->next;
+                struct Point *tmp;
 
+                cairo_set_source_rgb(cr, app_wdgts->color_get->r, 
+                                         app_wdgts->color_get->g, 
+                                         app_wdgts->color_get->b);
+                
+                cairo_set_line_width(cr, (double)app_wdgts->thickness);
+
+                while (point != NULL)
+                {
+                    if(point->next == NULL)
+                        break;  
+                    tmp = point;
+                    point = point->next;
+                    cairo_move_to(cr, (double)tmp->x, (double)tmp->y);
+                    cairo_line_to(cr, (double)point->x, (double)point->y);
+                    cairo_stroke(cr);  
+                    
+                }
+        }
         app_wdgts->cr_action = 0;
     }
 
@@ -1036,6 +1083,7 @@ int on_draw_button_release_event(GtkWidget *widget, GdkEventButton *event,
                 (void*)app_wdgts->color,
                 app_wdgts->thickness,
                 app_wdgts->brush_type, 1, "cache/temp_img.png");
+
         modif = 1;
     }
 
@@ -1051,10 +1099,23 @@ int on_btn_color_color_set(GtkWidget *color_button, app_widgets *app_wdgts)
 {
     GdkRGBA *color_set = malloc(sizeof(GdkRGBA));
     gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(color_button), color_set);
+    app_wdgts->color_get->r = color_set->red;
+    app_wdgts->color_get->g = color_set->green;
+    app_wdgts->color_get->b = color_set->blue;
+    app_wdgts->color_get->a = color_set->alpha;
+
+    printf("%f, %f, %f\n", app_wdgts->color_get->r, 
+                           app_wdgts->color_get->g, 
+                           app_wdgts->color_get->b);
+
     app_wdgts->color->r = color_set->red * 255;
     app_wdgts->color->g = color_set->green * 255;
     app_wdgts->color->b = color_set->blue * 255;
     app_wdgts->color->a = (color_set->alpha * 127) * (-1);
+
+    printf("%d, %d, %d\n", app_wdgts->color->r, 
+                           app_wdgts->color->g, 
+                           app_wdgts->color->b);
     return 0;
 }
 
