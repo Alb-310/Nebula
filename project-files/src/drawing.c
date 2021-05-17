@@ -210,14 +210,55 @@ void wipe(gdImagePtr im, FILE *out, void *point_list, int *array, int *dw_array,
     fclose(out);
 }
 
-void fill (gdImagePtr im, FILE *out, void *src, void *dst,
+void __fill(gdImagePtr im, struct Color *src, struct Color *dst, int x, int y, 
+                        int born, int color_dst,int width, int height, int *tab)
+{
+    int truepixel = gdImageGetTrueColorPixel(im,x,y);
+    int r = gdImageRed(im,truepixel);
+    int b = gdImageBlue(im,truepixel);
+    int g = gdImageGreen(im,truepixel);
+    //printf("x = %d, y = %d\n", x, y);
+    //printf("tab[%d][%d] = %d\n", x, y, tab[x*width + y]);
+    if(r >= src->r - born && r <= src->r + born 
+                && g >= src->g - born && g <= src->g + born
+                && b >= src->b - born && b <= src->b + born)
+    {
+        if (tab[x*width + y] == 0){
+            gdImageSetPixel(im, x, y, color_dst);
+            tab[x*width + y] = 1;
+            if (x+1 < width)
+                __fill(im, src, dst, x+1, y, born, color_dst, width, height, tab);
+            if (y+1 < width)
+                __fill(im, src, dst, x, y+1, born, color_dst, width, height, tab);
+            if (x-1 >= 0)
+                __fill(im, src, dst, x-1, y, born, color_dst, width, height, tab);
+            if (y-1 >= 0)
+                __fill(im, src, dst, x, y-1, born, color_dst, width, height, tab);
+        }/*
+        if (y+1 < height && tab[x*width + (y+1)] == 0){
+            tab[x*width + (y+1)] = 1;
+            __fill(im, src, dst, x, y+1, born, color_dst, width, height, tab);
+        }
+        if (x-1 > 0 && tab[(x-1)*width + y] == 0){
+            tab[(x-1)*width + y] = 1;
+            __fill(im, src, dst, x-1, y, born, color_dst, width, height, tab);
+        }
+        if (y-1 > 0 && tab[x*width + (y-1)] == 0){
+            tab[x*width + (y-1)] = 1;
+            __fill(im, src, dst, x, y-1, born, color_dst, width, height, tab);
+        }*/
+    }
+}
+
+void fill (gdImagePtr im, FILE *out, void *src, void *dst, int x, int y,
                 char *path)
 {
+    printf("monreufçaditquoi\n");
     out = fopen(path, "wb");
     struct Color *src_info = src;
     struct Color *dst_info = dst;
-    int alpha_old = dst_info->a;
-    dst_info->a = dst_info->a + 127;
+    //int alpha_old = dst_info->a;
+    //dst_info->a = dst_info->a + 127;
 
     int color_src = gdImageColorAllocate(im, src_info->r, src_info->g, 
                                                         src_info->b);
@@ -228,9 +269,18 @@ void fill (gdImagePtr im, FILE *out, void *src, void *dst,
     
     int width = gdImageSX(im);
     int height = gdImageSY(im);
-    int born = 90;
+    int *tab = malloc(sizeof(int*) * (width*height));
+    for (int i = 0; i < width; i++)
+    {
+        for (int j = 0; j < height; j++)
+        {
+            tab[i*width + j] = 0;
+        }
+    }
+    
+    int born = 40;
 
-    for(int i = 0; i < width; i++){
+    /*for(int i = 0; i < width; i++){
         for(int j = 0; j < height; j++){
             int truepixel = gdImageGetTrueColorPixel(im,i,j);
             int r = gdImageRed(im,truepixel);
@@ -243,12 +293,15 @@ void fill (gdImagePtr im, FILE *out, void *src, void *dst,
                 gdImageSetPixel(im, i, j, color_dst);
             }
         }
-    }
+    }*/
+
+    __fill(im, src, dst, x, y, born, color_dst, width, height, tab);
 
     //gdImageFill(im, x, y, color_dst);
     gdImagePng(im, out);
-    dst_info->a = alpha_old;
+    //dst_info->a = alpha_old;
     fclose(out);
+    free(tab);
 }
 
 /*
