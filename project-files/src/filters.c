@@ -2,6 +2,8 @@
 #include "gd.h"
 #include ".h/filters.h"
 #include ".h/func_divers.h"
+#include<time.h>
+#include <string.h>
 
 void OldSchool_Filter(gdImagePtr image, FILE *Output, char *path )
 {
@@ -122,4 +124,50 @@ void WinterFrost_Filter(gdImagePtr image, FILE *Output, char *path )
 
     gdImagePng(image, Output);
     fclose (Output);
+}
+
+void TimeOClock_Filter(gdImagePtr image, FILE *Output, char *path  )
+{
+    Output = fopen (path, "wb");
+    gdImageColor(image,0,20,30,0);
+    gdImageContrast(image,10);
+    gdImageBrightness(image,10);
+
+    gdImagePtr cdr = gdImageCreateFromFile ("project-files/src/resources/ImageProcessing/vignette.png");
+    cdr = gdImageScale(cdr,image->sx,image->sy);
+    
+    gdImageCopy(image,cdr,0,0,0,0,image->sx,image->sy);
+
+    int x = image->sx - image->sy*0.2;
+    int y = image->sy*0.1;
+
+    int *brect = malloc(8*sizeof(int));
+	brect[0]=x;
+	brect[1]=y;
+	brect[2]=x+image->sx;
+	brect[3]=y;
+	brect[4]=x+image->sx;
+	brect[5]=y+image->sy;
+	brect[6]=x;
+	brect[7]=y+image->sy;
+    char* filename = "src/resources/ImageProcessing/Digit.TTF";
+    char* font = realpath(filename,NULL);
+    int color = gdImageColorAllocate(image,255,255,255);
+
+    time_t rawtime;
+    struct tm * timeinfo;
+
+    time ( &rawtime );
+    timeinfo = localtime ( &rawtime );
+    char output1[6];
+    sprintf(output1, "%d:%d", timeinfo->tm_hour, timeinfo->tm_min);
+    
+    gdImageStringFT(image,brect,0,font,image->sy*0.07,0,x+1,y,output1);
+    gdImageStringFT(image,brect,color,font,image->sy*0.07 - 2,0,x-1,y,output1);
+    
+    gdImagePng(image, Output);
+    
+    gdFree(cdr);
+    fclose (Output);
+
 }
