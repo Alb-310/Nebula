@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <err.h>
+#include <unistd.h>
 #include "gd.h"
 
 struct Point {
@@ -42,11 +43,25 @@ void set_brush_type(gdImagePtr im, struct BrushType **b, struct Color *c)
 int set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c, int tks, 
                 int type, int zoom, char *path)
 {
-    printf("%ld\n", sizeof(zoom));
     out = fopen(path, "wb");
     struct Color *color_info = c;
     int type_modif;
     int tks_modif = 0;
+
+    if (zoom == 0)
+        zoom = 1;
+    
+    if(zoom < 0){
+        zoom = -zoom;
+        x *= zoom;
+        y *= zoom;
+    }
+    else{
+        x /= zoom;
+        y /= zoom;
+    }
+
+    printf("zoom: %d - x: %d - y: %d\n", zoom, x, y);
     
     switch(type){
         case 2: type_modif = 90; break;
@@ -211,29 +226,23 @@ void wipe(gdImagePtr im, FILE *out, void *point_list, int *array, int *dw_array,
 }
 
 void __fill(gdImagePtr im, struct Color *src, struct Color *dst, int x, int y, 
-                        int born, int color_dst,int width, int height, int *tab)
+                        int dirX, int dirY, int born, int color_dst,int width, int height, int *tab)
 {
     int truepixel = gdImageGetTrueColorPixel(im,x,y);
     int r = gdImageRed(im,truepixel);
     int b = gdImageBlue(im,truepixel);
     int g = gdImageGreen(im,truepixel);
-    //printf("x = %d, y = %d\n", x, y);
-    //printf("tab[%d][%d] = %d\n", x, y, tab[x*width + y]);
     if(r >= src->r - born && r <= src->r + born 
                 && g >= src->g - born && g <= src->g + born
                 && b >= src->b - born && b <= src->b + born)
     {
-        if (tab[x*width + y] == 0){
+        if (tab[y * width + x] == 0){
             gdImageSetPixel(im, x, y, color_dst);
-            tab[x*width + y] = 1;
+            tab[y * width + x] = 1;
             if (x+1 < width)
-                __fill(im, src, dst, x+1, y, born, color_dst, width, height, tab);
+                __fill(im, src, dst, x+dirX, y, dirX, dirY, born, color_dst, width, height, tab);
             if (y+1 < width)
-                __fill(im, src, dst, x, y+1, born, color_dst, width, height, tab);
-            if (x-1 >= 0)
-                __fill(im, src, dst, x-1, y, born, color_dst, width, height, tab);
-            if (y-1 >= 0)
-                __fill(im, src, dst, x, y-1, born, color_dst, width, height, tab);
+                __fill(im, src, dst, x, y+dirY, dirX, dirY, born, color_dst, width, height, tab);
         }/*
         if (y+1 < height && tab[x*width + (y+1)] == 0){
             tab[x*width + (y+1)] = 1;
@@ -253,7 +262,6 @@ void __fill(gdImagePtr im, struct Color *src, struct Color *dst, int x, int y,
 void fill (gdImagePtr im, FILE *out, void *src, void *dst, int x, int y,
                 char *path)
 {
-    printf("monreufçaditquoi\n");
     out = fopen(path, "wb");
     struct Color *src_info = src;
     struct Color *dst_info = dst;
@@ -264,21 +272,14 @@ void fill (gdImagePtr im, FILE *out, void *src, void *dst, int x, int y,
                                                         src_info->b);
     int color_dst = gdImageColorAllocate(im, dst_info->r, dst_info->g,
                                                         dst_info->b);
+
     if(color_src == 0 || color_dst == 0)
         errx(EXIT_FAILURE, "Couldn't create color.");
     
     int width = gdImageSX(im);
-    int height = gdImageSY(im);
-    int *tab = malloc(sizeof(int*) * (width*height));
-    for (int i = 0; i < width; i++)
-    {
-        for (int j = 0; j < height; j++)
-        {
-            tab[i*width + j] = 0;
-        }
-    }
-    
+    int height = gdImageSY(im);    
     int born = 40;
+    int *tab = calloc((size_t)width*height, sizeof(int));   
 
     /*for(int i = 0; i < width; i++){
         for(int j = 0; j < height; j++){
@@ -293,15 +294,75 @@ void fill (gdImagePtr im, FILE *out, void *src, void *dst, int x, int y,
                 gdImageSetPixel(im, i, j, color_dst);
             }
         }
-    }*/
+    }*/    
 
-    __fill(im, src, dst, x, y, born, color_dst, width, height, tab);
+    int stop1 = 0;
+    int stop2 = 0;
+
+    for(int i = 0; i < width; i++){
+        int truepixel = gdImageGetTrueColorPixel(im,x+i,y);
+        int r = gdImageRed(im,truepixel);
+        int b = gdImageBlue(im,truepixel);
+        int g = gdImageGreen(im,truepixel);
+        if(r >= src_info->r - born && r <= src_info->r + born 
+                    && g >= src_info->g - born && g <= src_info->g + born
+                    && b >= src_info->b - born && b <= src_info->b + born)
+        {
+            if(!stop1)
+                gdImageSetPixel(im, x+i, y, color_dst);
+        }
+        else{
+            stop1 = 1;
+        }
+
+        truepixel = gdImageGetTrueColorPixel(im,x-i,y);
+        r = gdImageRed(im,truepixel);
+        b = gdImageBlue(im,truepixel);
+        g = gdImageGreen(im,truepixel);
+        if(r >= src_info->r - born && r <= src_info->r + born 
+                    && g >= src_info->g - born && g <= src_info->g + born
+                    && b >= src_info->b - born && b <= src_info->b + born)
+        {
+            if(!stop2)
+                gdImageSetPixel(im, x-i, y, color_dst);
+        }
+
+        else{
+            stop2 = 1;
+        }
+    }
+
+    for(int i = 0; i < height; i++){
+        int truepixel = gdImageGetTrueColorPixel(im,x,y+i);
+        int r = gdImageRed(im,truepixel);
+        int b = gdImageBlue(im,truepixel);
+        int g = gdImageGreen(im,truepixel);
+        if(r >= src_info->r - born && r <= src_info->r + born 
+                    && g >= src_info->g - born && g <= src_info->g + born
+                    && b >= src_info->b - born && b <= src_info->b + born)
+        {gdImageSetPixel(im, x, y+i, color_dst);}
+
+        truepixel = gdImageGetTrueColorPixel(im,x,y-i);
+        r = gdImageRed(im,truepixel);
+        b = gdImageBlue(im,truepixel);
+        g = gdImageGreen(im,truepixel);
+        if(r >= src_info->r - born && r <= src_info->r + born 
+                    && g >= src_info->g - born && g <= src_info->g + born
+                    && b >= src_info->b - born && b <= src_info->b + born)
+        {gdImageSetPixel(im, x, y-i, color_dst);}
+    }
+
+    __fill(im, src, dst, x-1, y-1, -1, -1, born, color_dst, width, height, tab);
+    __fill(im, src, dst, x+1, y+1, 1, 1, born, color_dst, width, height, tab);
+    __fill(im, src, dst, x-1, y-1, -1, -1, born, color_dst, width, height, tab);
+    __fill(im, src, dst, x+1, y-1, +1, -1, born, color_dst, width, height, tab);
+    __fill(im, src, dst, x-1, y+1, -1, 1, born, color_dst, width, height, tab);
 
     //gdImageFill(im, x, y, color_dst);
+    //free(tab);
     gdImagePng(im, out);
-    //dst_info->a = alpha_old;
+    //dst_info->a = alpha_old;*/
     fclose(out);
-    free(tab);
 }
 
 /*

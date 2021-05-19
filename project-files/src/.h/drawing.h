@@ -9,9 +9,6 @@ void erase (gdImagePtr im, FILE *out, void *point_list, void* c, int tks, int zo
 
 void wipe(gdImagePtr im, FILE *out, void *point_list, int *array, int *dw_array, 
                             int width, int zoom, char *path);
-
-void __fill(gdImagePtr im, struct Color *src, struct Color *dst, int x, int y, 
-                        int born, int color_dst,int width, int height, int *tab);
                         
 void fill (gdImagePtr im, FILE *out, void* src, void* dst, int x, int y, char *path);
 
