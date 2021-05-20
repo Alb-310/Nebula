@@ -64,8 +64,6 @@ int set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c, int tks,
 
     gdImageSetThickness(im, tks + tks_modif);
 
-    printf("tks: %d\n", tks);
-
     if (type != 4)
     {
         switch(tks){
