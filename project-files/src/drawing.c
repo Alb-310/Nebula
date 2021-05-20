@@ -41,27 +41,12 @@ void set_brush_type(gdImagePtr im, struct BrushType **b, struct Color *c)
 }
 
 int set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c, int tks, 
-                int type, int zoom, char *path)
+                int type, char *path)
 {
     out = fopen(path, "wb");
     struct Color *color_info = c;
     int type_modif;
     int tks_modif = 0;
-
-    if (zoom == 0)
-        zoom = 1;
-    
-    if(zoom < 0){
-        zoom = -zoom;
-        x *= zoom;
-        y *= zoom;
-    }
-    else{
-        x /= zoom;
-        y /= zoom;
-    }
-
-    printf("zoom: %d - x: %d - y: %d\n", zoom, x, y);
     
     switch(type){
         case 2: type_modif = 90; break;
@@ -108,9 +93,9 @@ int set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c, int tks,
 }
 
 void line_to (gdImagePtr im, FILE *out, void *point_list, 
-                void* c, int tks, int type, int zoom, char *path)
+                void* c, int tks, int type, char *path)
 {
-    printf("%ld\n", sizeof(zoom));
+    
     out = fopen(path, "wb");
     struct Color *color_info = c;    
     int type_modif;
@@ -160,9 +145,9 @@ void line_to (gdImagePtr im, FILE *out, void *point_list,
 }
 
 void erase(gdImagePtr im, FILE *out, void *point_list, 
-                void* c, int tks, int zoom, char *path)
+                void* c, int tks, char *path)
 {
-    printf("%ld\n", sizeof(zoom));
+    
     out = fopen(path, "wb");
     struct Color *color_info = c;    
     // tks *= zoom;
@@ -196,9 +181,9 @@ void erase(gdImagePtr im, FILE *out, void *point_list,
 }
 
 void wipe(gdImagePtr im, FILE *out, void *point_list, int *array, int *dw_array, 
-                            int width, int zoom, char *path)
+                            int width, char *path)
 {
-    printf("%ld\n", sizeof(zoom));
+    
     out = fopen(path, "wb");    
     // tks *= zoom;
     struct Point *tmp;
