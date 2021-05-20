@@ -133,7 +133,7 @@ void TimeOClock_Filter(gdImagePtr image, FILE *Output, char *path  )
     gdImageContrast(image,10);
     gdImageBrightness(image,10);
 
-    gdImagePtr cdr = gdImageCreateFromFile ("project-files/src/resources/ImageProcessing/vignette.png");
+    gdImagePtr cdr = gdImageCreateFromFile ("src/resources/ImageProcessing/vignette.png");
     cdr = gdImageScale(cdr,image->sx,image->sy);
     
     gdImageCopy(image,cdr,0,0,0,0,image->sx,image->sy);
