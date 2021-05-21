@@ -97,3 +97,115 @@ void add_motif(gdImagePtr dst, FILE *out, char* path, char *motif,int dst_x,int 
 	gdImagePng(dst,out);
 	fclose(out);
 }
+
+void collage(char *filename_background,char *filename_first_picture,char *filename_second_picture,char *filename_third_picture,char *filename_fourth_picture)
+{
+	if(strcmp(filename_third_picture,"")==0 && strcmp(filename_fourth_picture,"")== 0)
+	{
+		gdImagePtr background;
+		gdImagePtr first_pic;
+		gdImagePtr second_pic;
+		FILE *out;
+		out = fopen("result.png","wb");
+		background = gdImageCreateFromFile(filename_background);
+		background = gdImageScale(background,1920,1080);
+		first_pic = gdImageCreateFromFile(filename_first_picture);
+		first_pic = gdImageScale(first_pic,1920,1080);
+		second_pic = gdImageCreateFromFile(filename_second_picture);
+		second_pic = gdImageScale(second_pic,1920,1080);
+
+		gdRect *crop=malloc(sizeof(gdRect));
+		crop->x=(1920/2)-(1920/4);
+		crop->y=10;
+		crop->width=1920/2-20;
+		crop->height=1060;
+		first_pic=gdImageCrop(first_pic,crop);	
+		second_pic=gdImageCrop(second_pic,crop);
+
+		gdImageCopy(background,first_pic,10,10,0,0,gdImageSX(first_pic),gdImageSY(first_pic));
+		gdImageCopy(background,second_pic,1920/2+5,10,0,0,gdImageSX(second_pic),gdImageSY(second_pic));
+		gdImagePng(background,out);
+		gdFree(background);
+		gdFree(first_pic);
+		gdFree(second_pic);
+		fclose(out);
+	}
+	else if(strcmp(filename_third_picture,"")!=0 && strcmp(filename_fourth_picture,"")==0)
+	{
+		gdImagePtr background;
+		gdImagePtr first_pic;
+		gdImagePtr second_pic;
+		gdImagePtr third_pic;
+		FILE *out;
+		out = fopen("result.png","wb");
+		background = gdImageCreateFromFile(filename_background);
+		background = gdImageScale(background,1920,1080);
+		first_pic = gdImageCreateFromFile(filename_first_picture);
+		first_pic = gdImageScale(first_pic,1920,1080);
+		second_pic = gdImageCreateFromFile(filename_second_picture);
+		second_pic = gdImageScale(second_pic,1920,1080);
+		third_pic = gdImageCreateFromFile(filename_third_picture);
+		third_pic = gdImageScale(third_pic,1920,1080);
+		gdRect *crop=malloc(sizeof(gdRect));
+		crop->x=(1920/2)-(1920/6);
+		crop->y=10;
+		crop->width=1920/3-20;
+		crop->height=1060;
+		first_pic=gdImageCrop(first_pic,crop);	
+		second_pic=gdImageCrop(second_pic,crop);
+		third_pic=gdImageCrop(third_pic,crop);
+		gdImageCopy(background,first_pic,10,10,0,0,gdImageSX(first_pic),gdImageSY(first_pic));
+		gdImageCopy(background,second_pic,1920/3+5,10,0,0,gdImageSX(second_pic),gdImageSY(second_pic));
+		gdImageCopy(background,third_pic,1920*2/3+5,10,0,0,gdImageSX(third_pic),gdImageSY(third_pic));
+		gdImagePng(background,out);
+		gdFree(background);
+		gdFree(first_pic);
+		gdFree(second_pic);
+		gdFree(third_pic);
+		fclose(out);
+
+	}
+	else
+	{
+		gdImagePtr background;
+		gdImagePtr first_pic;
+		gdImagePtr second_pic;
+		gdImagePtr third_pic;
+		gdImagePtr fourth_pic;
+		FILE *out;
+		out = fopen("result.png","wb");
+		background = gdImageCreateFromFile(filename_background);
+		background = gdImageScale(background,1920,1080);
+		first_pic = gdImageCreateFromFile(filename_first_picture);
+		first_pic = gdImageScale(first_pic,1920,1080);
+		second_pic = gdImageCreateFromFile(filename_second_picture);
+		second_pic = gdImageScale(second_pic,1920,1080);
+		third_pic = gdImageCreateFromFile(filename_third_picture);
+		third_pic = gdImageScale(third_pic,1920,1080);
+		fourth_pic = gdImageCreateFromFile(filename_fourth_picture);
+		fourth_pic = gdImageScale(fourth_pic,1920,1080);
+		gdRect *crop=malloc(sizeof(gdRect));
+		crop->x=(1920/2)-(1920/8);
+		crop->y=10;
+		crop->width=1920/4-20;
+		crop->height=1060;
+		first_pic=gdImageCrop(first_pic,crop);	
+		second_pic=gdImageCrop(second_pic,crop);
+		third_pic=gdImageCrop(third_pic,crop);
+		fourth_pic=gdImageCrop(fourth_pic,crop);
+		gdImageCopy(background,first_pic,10,10,0,0,gdImageSX(first_pic),gdImageSY(first_pic));
+		gdImageCopy(background,second_pic,1920/4+5,10,0,0,gdImageSX(second_pic),gdImageSY(second_pic));
+		gdImageCopy(background,third_pic,1920*2/4+5,10,0,0,gdImageSX(third_pic),gdImageSY(third_pic));
+		gdImageCopy(background,fourth_pic,1920*3/4+5,10,0,0,gdImageSX(fourth_pic),gdImageSY(fourth_pic));
+		gdImagePng(background,out);
+		gdFree(background);
+		gdFree(first_pic);
+		gdFree(second_pic);
+		gdFree(third_pic);
+		gdFree(fourth_pic);
+		fclose(out);
+
+	}
+}
+
+

@@ -16,5 +16,6 @@ void picture_insertion(gdImagePtr src, FILE *out, gdImagePtr dst, char *path, in
 
 void add_motif(gdImagePtr dst, FILE *out, char* path, char *motif,int dst_x,int dst_y,float src_dim_percent);
 
+void collage(char*filename_background,char *filename_first_picture,char *filename_second_picture,char *filename_third_picture,char *filename_fourth_picture);
 #endif
 
