@@ -75,6 +75,7 @@ void add_motif(gdImagePtr dst, FILE *out, char* path, char *motif,int dst_x,int 
 	gdImagePtr src;
 	char *filename_source;
 	out = fopen(path,"wb");
+	printf("1\n");
 	if(strcmp("square",motif)==0)
 		filename_source="src/resources/func_divers/square.png";
 	else if(strcmp("circle",motif)==0)
@@ -89,6 +90,8 @@ void add_motif(gdImagePtr dst, FILE *out, char* path, char *motif,int dst_x,int 
 		filename_source="src/resources/func_divers/heart.png";
 	else
 		errx(1,"wrong motif argument given");
+
+	printf("2\n");
 	src = gdImageCreateFromFile(filename_source);
 	src = gdImageScale(src,gdImageSX(src)*src_dim_percent,gdImageSY(src)*src_dim_percent);
 	int width = gdImageSX(src);

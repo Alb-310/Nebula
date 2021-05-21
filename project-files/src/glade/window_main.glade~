@@ -97,18 +97,6 @@
     <property name="pixel_size">25</property>
     <property name="icon_name">select-rectangular</property>
   </object>
-  <object class="GtkImage" id="logo2">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixel_size">25</property>
-    <property name="icon_name">shapes</property>
-  </object>
-  <object class="GtkImage" id="logo3">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixel_size">25</property>
-    <property name="icon_name">tool_eraser</property>
-  </object>
   <object class="GtkImage" id="logo4">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -135,6 +123,12 @@
   <object class="GtkAdjustment" id="noise_adj">
     <property name="upper">50</property>
     <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="shapes_adj">
+    <property name="upper">1</property>
+    <property name="value">0.29999999999999999</property>
+    <property name="step_increment">0.010000000223517418</property>
     <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="sharpen_adj">
@@ -470,7 +464,8 @@
                                 <property name="language">en-us</property>
                                 <property name="level">GTK_FONT_CHOOSER_LEVEL_SIZE | GTK_FONT_CHOOSER_LEVEL_FAMILY</property>
                                 <property name="preview_text"/>
-                                <property name="use_font">True</property>
+                                <property name="show_style">False</property>
+                                <property name="show_size">False</property>
                               </object>
                             </child>
                           </object>
@@ -658,6 +653,185 @@
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="position">3</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkFrame">
+                        <property name="width_request">231</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label_xalign">0</property>
+                        <property name="shadow_type">in</property>
+                        <child>
+                          <object class="GtkAlignment">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="halign">center</property>
+                            <property name="valign">center</property>
+                            <property name="bottom_padding">4</property>
+                            <property name="left_padding">4</property>
+                            <property name="right_padding">4</property>
+                            <child>
+                              <object class="GtkGrid">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="row_spacing">3</property>
+                                <property name="column_spacing">3</property>
+                                <child>
+                                  <object class="GtkButton" id="btn_square">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <signal name="focus-in-event" handler="on_btn_square_focus_in_event" swapped="no"/>
+                                    <signal name="focus-out-event" handler="on_btn_square_focus_out_event" swapped="no"/>
+                                    <child>
+                                      <object class="GtkImage" id="prev_square">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="stock">gtk-missing-image</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">0</property>
+                                    <property name="top_attach">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="btn_circle">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <signal name="focus-in-event" handler="on_btn_circle_focus_in_event" swapped="no"/>
+                                    <signal name="focus-out-event" handler="on_btn_circle_focus_out_event" swapped="no"/>
+                                    <child>
+                                      <object class="GtkImage" id="prev_circle">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="stock">gtk-missing-image</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="top_attach">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="btn_triangle">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <signal name="focus-in-event" handler="on_btn_triangle_focus_in_event" swapped="no"/>
+                                    <signal name="focus-out-event" handler="on_btn_triangle_focus_out_event" swapped="no"/>
+                                    <child>
+                                      <object class="GtkImage" id="prev_triangle">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="stock">gtk-missing-image</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="top_attach">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="btn_pentagon">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <signal name="focus-in-event" handler="on_btn_pentagon_focus_in_event" swapped="no"/>
+                                    <signal name="focus-out-event" handler="on_btn_pentagon_focus_out_event" swapped="no"/>
+                                    <child>
+                                      <object class="GtkImage" id="prev_pentagon">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="stock">gtk-missing-image</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">3</property>
+                                    <property name="top_attach">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="btn_star">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <signal name="focus-in-event" handler="on_btn_star_focus_in_event" swapped="no"/>
+                                    <signal name="focus-out-event" handler="on_btn_star_focus_out_event" swapped="no"/>
+                                    <child>
+                                      <object class="GtkImage" id="prev_star">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="stock">gtk-missing-image</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">4</property>
+                                    <property name="top_attach">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="btn_heart">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <signal name="focus-in-event" handler="on_btn_heart_focus_in_event" swapped="no"/>
+                                    <signal name="focus-out-event" handler="on_btn_heart_focus_out_event" swapped="no"/>
+                                    <child>
+                                      <object class="GtkImage" id="prev_heart">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="stock">gtk-missing-image</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">5</property>
+                                    <property name="top_attach">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkSpinButton" id="entry_shapes">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="max_length">5</property>
+                                    <property name="activates_default">True</property>
+                                    <property name="width_chars">5</property>
+                                    <property name="text" translatable="yes">0</property>
+                                    <property name="adjustment">shapes_adj</property>
+                                    <property name="climb_rate">0.049999999776482583</property>
+                                    <property name="digits">2</property>
+                                    <property name="numeric">True</property>
+                                    <signal name="value-changed" handler="on_entry_shapes_value_changed" swapped="no"/>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">6</property>
+                                    <property name="top_attach">0</property>
+                                  </packing>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Shapes &amp; Patterns</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">4</property>
                       </packing>
                     </child>
                   </object>
@@ -1765,26 +1939,6 @@
                             <property name="expand">False</property>
                             <property name="fill">True</property>
                             <property name="position">6</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkButton" id="btn_motif">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">True</property>
-                            <property name="halign">start</property>
-                            <property name="valign">start</property>
-                            <property name="image">logo2</property>
-                            <property name="relief">none</property>
-                            <property name="xalign">0.5</property>
-                            <property name="image_position">top</property>
-                            <signal name="focus-in-event" handler="on_btn_motif_focus_in_event" swapped="no"/>
-                            <signal name="focus-out-event" handler="on_btn_motif_focus_out_event" swapped="no"/>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">7</property>
                           </packing>
                         </child>
                       </object>

@@ -114,6 +114,19 @@ typedef struct {
     GtkWidget *w_btn_wipe;
     GtkWidget *w_btn_motif;
     GtkWidget *w_btn_font;
+    GtkWidget *w_prev_circle;
+    GtkWidget *w_prev_heart;
+    GtkWidget *w_prev_pentagon;
+    GtkWidget *w_prev_square;
+    GtkWidget *w_prev_star;
+    GtkWidget *w_prev_triangle;
+    GtkWidget *w_btn_heart;
+    GtkWidget *w_btn_circle;
+    GtkWidget *w_btn_pentagon;
+    GtkWidget *w_btn_square;
+    GtkWidget *w_btn_star;
+    GtkWidget *w_btn_triangle;
+    GtkWidget *w_entry_shapes;
 
     int *color_array;
     int *draw_array;
@@ -156,6 +169,8 @@ typedef struct {
     int focus_wipe;
     int focus_motif;
     int insert_img_select;
+    char* pattern_type;
+    float pattern_size;
 
 } app_widgets;
 
@@ -164,6 +179,53 @@ typedef struct {
 #pragma  region Main
 
 struct Point *p1, *p2, *start, *start2;
+
+int init_shape_and_pattern(app_widgets *app_wdgts)
+{
+    char* shapes_and_pattern_PathList[6] = {
+        "src/resources/func_divers/square.png",
+        "src/resources/func_divers/circle.png",
+        "src/resources/func_divers/triangle.png",
+        "src/resources/func_divers/pentagon.png",
+        "src/resources/func_divers/star.png",
+        "src/resources/func_divers/heart.png"
+    };
+
+    GtkWidget* shapes_and_pattern_WidgetList[6] = {
+            app_wdgts->w_prev_square,
+            app_wdgts->w_prev_circle,
+            app_wdgts->w_prev_triangle,
+            app_wdgts->w_prev_pentagon,
+            app_wdgts->w_prev_star,
+            app_wdgts->w_prev_heart
+    };
+
+    size_t len = 6;
+    int coef = 16;
+
+    for(size_t i = 0; i < len; i++){
+
+        GdkPixbuf *prev =
+        gdk_pixbuf_new_from_file(
+                shapes_and_pattern_PathList[i], 
+                NULL
+        );
+
+        prev = gdk_pixbuf_scale_simple(prev,
+                gdk_pixbuf_get_width(prev)/coef,
+                gdk_pixbuf_get_height(prev)/coef,
+                GDK_INTERP_NEAREST
+        );
+
+        gtk_image_set_from_pixbuf(
+                GTK_IMAGE(shapes_and_pattern_WidgetList[i]), 
+                prev
+        );
+
+    }
+
+    return 0;
+}
 
 int main(int argc, char *argv[])
 {
@@ -194,6 +256,9 @@ int main(int argc, char *argv[])
 
     widgets->zoomed_w = 0;
     widgets->zoomed_h = 0;
+
+    widgets->pattern_size = 0.3;
+    widgets->pattern_type = "square";
 
     gtk_init(&argc, &argv);
 
@@ -295,12 +360,40 @@ int main(int argc, char *argv[])
             gtk_builder_get_object(builder, "btn_motif"));
     widgets->w_btn_font = GTK_WIDGET(
             gtk_builder_get_object(builder, "btn_font"));
+    widgets->w_prev_square = GTK_WIDGET(
+            gtk_builder_get_object(builder, "prev_square"));
+    widgets->w_prev_circle = GTK_WIDGET(
+            gtk_builder_get_object(builder, "prev_circle"));
+    widgets->w_prev_triangle = GTK_WIDGET(
+            gtk_builder_get_object(builder, "prev_triangle"));
+    widgets->w_prev_pentagon = GTK_WIDGET(
+            gtk_builder_get_object(builder, "prev_pentagon"));
+    widgets->w_prev_star = GTK_WIDGET(
+            gtk_builder_get_object(builder, "prev_star"));
+    widgets->w_prev_heart = GTK_WIDGET(
+            gtk_builder_get_object(builder, "prev_heart"));
+    widgets->w_btn_square = GTK_WIDGET(
+            gtk_builder_get_object(builder, "btn_square"));
+    widgets->w_btn_circle = GTK_WIDGET(
+            gtk_builder_get_object(builder, "btn_circle"));
+    widgets->w_btn_triangle = GTK_WIDGET(
+            gtk_builder_get_object(builder, "btn_triangle"));
+    widgets->w_btn_pentagon = GTK_WIDGET(
+            gtk_builder_get_object(builder, "btn_pentagon"));
+    widgets->w_btn_star = GTK_WIDGET(
+            gtk_builder_get_object(builder, "btn_star"));
+    widgets->w_btn_heart = GTK_WIDGET(
+            gtk_builder_get_object(builder, "btn_heart"));
+    widgets->w_entry_shapes = GTK_WIDGET(
+            gtk_builder_get_object(builder, "entry_shapes"));  
 
     gtk_builder_connect_signals(builder, widgets);
     g_object_unref(builder);
 
     gtk_widget_set_events(widgets->w_drawing_aera, GDK_BUTTON_MOTION_MASK |
             GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
+
+    init_shape_and_pattern(widgets);
 
     //Set default states & values
     gtk_widget_set_sensitive(widgets->w_scale_brightness, FALSE);
@@ -336,8 +429,13 @@ int main(int argc, char *argv[])
     gtk_widget_set_sensitive(widgets->w_scale_noise, FALSE);
     gtk_widget_set_sensitive(widgets->w_scale_sharpen, FALSE);
     gtk_widget_set_sensitive(widgets->w_btn_wipe, FALSE);
-    gtk_widget_set_sensitive(widgets->w_btn_motif, FALSE);
-
+    gtk_widget_set_sensitive(widgets->w_btn_square, FALSE);
+    gtk_widget_set_sensitive(widgets->w_btn_circle, FALSE);
+    gtk_widget_set_sensitive(widgets->w_btn_pentagon, FALSE);
+    gtk_widget_set_sensitive(widgets->w_btn_star, FALSE);
+    gtk_widget_set_sensitive(widgets->w_btn_heart, FALSE);
+    gtk_widget_set_sensitive(widgets->w_btn_triangle, FALSE);
+    gtk_widget_set_sensitive(widgets->w_entry_shapes, FALSE);
 
     gtk_widget_show(widgets->w_window);
     gtk_main();
@@ -626,6 +724,21 @@ int update_xy(app_widgets *app_widgets, int *x, int *y)
 //// SignalCallbackFunctions
 int on_menubar_open_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
 {
+    app_wdgts->focus_draw = 0;
+    app_wdgts->focus_fill = 0;
+    app_wdgts->focus_erase = 0;
+    app_wdgts->focus_wipe = 0;    
+
+    app_wdgts->cr_action = 0;
+    app_wdgts->thickness = 1;
+    app_wdgts->insert_img_select = 0;
+
+    app_wdgts->zoomed_w = 0;
+    app_wdgts->zoomed_h = 0;
+
+    app_wdgts->pattern_size = 0.3;
+    app_wdgts->pattern_type = "square";
+
     printf("%ld\n", sizeof(menuitem));
     // Show the "Open Image" dialog box
     gtk_widget_show(app_wdgts->w_dlg_file_choose);
@@ -662,7 +775,6 @@ int on_menubar_open_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
             gtk_widget_set_sensitive(app_wdgts->w_entry_noise, TRUE);
             gtk_widget_set_sensitive(app_wdgts->w_entry_sharpen, TRUE);           
             gtk_widget_set_sensitive(app_wdgts->w_entry_temperature, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, TRUE);
             gtk_widget_set_sensitive(app_wdgts->w_check_none, TRUE);
             gtk_widget_set_sensitive(app_wdgts->w_check_oldschool, TRUE);
             gtk_widget_set_sensitive(app_wdgts->w_check_glowfilter,TRUE);
@@ -684,7 +796,22 @@ int on_menubar_open_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
             gtk_widget_set_sensitive(app_wdgts->w_btn_text, TRUE);
             gtk_widget_set_sensitive(app_wdgts->w_btn_erase, TRUE);
             gtk_widget_set_sensitive(app_wdgts->w_btn_wipe, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_btn_motif, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_circle, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_pentagon, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_square, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_star, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_heart, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, TRUE);
+
+            GdkRGBA *color_set = malloc(sizeof(GdkRGBA));
+            color_set->red = 0.0;
+            color_set->green = 0.0;
+            color_set->blue = 0.0;
+            color_set->alpha = 1.0;            
+
+            gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(app_wdgts->w_btn_color), color_set); 
+            free(color_set);
 
             // gets info of the image
             int img_w = gdImageSX(app_wdgts->gd_img);
@@ -705,6 +832,8 @@ int on_menubar_open_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
             init_color_array(app_wdgts);
 
             // Redraw the drawing area to display the image in the UI
+            gtk_widget_set_size_request(app_wdgts->w_drawing_aera,
+            app_wdgts->tmp_w, app_wdgts->tmp_h);
             app_wdgts->cr_action = 0;
             gtk_widget_queue_draw(app_wdgts->w_drawing_aera);
             update_info_zoom(app_wdgts);
@@ -746,6 +875,29 @@ int on_menubar_open_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
 
 int on_menubar_new_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
 {
+    app_wdgts->focus_draw = 0;
+    app_wdgts->focus_fill = 0;
+    app_wdgts->focus_erase = 0;
+    app_wdgts->focus_wipe = 0;    
+
+    app_wdgts->cr_action = 0;
+    app_wdgts->thickness = 1;
+    app_wdgts->insert_img_select = 0;
+
+    app_wdgts->zoomed_w = 0;
+    app_wdgts->zoomed_h = 0;
+
+    app_wdgts->pattern_size = 0.3;
+    app_wdgts->pattern_type = "square";
+
+    GdkRGBA *color_set = malloc(sizeof(GdkRGBA));
+    color_set->red = 0.0;
+    color_set->green = 0.0;
+    color_set->blue = 0.0;
+    color_set->alpha = 1.0;
+    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(app_wdgts->w_btn_color), color_set);
+    free(color_set);
+
     printf("%ld\n", sizeof(menuitem));
     GdkPixbuf *new_img = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, 800, 800);
     gdk_pixbuf_fill(new_img, 0xffffffff);
@@ -778,6 +930,8 @@ int on_menubar_new_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
     init_color_array(app_wdgts);
 
     // Redraw the drawing area to display the image in the UI
+    gtk_widget_set_size_request(app_wdgts->w_drawing_aera,
+            app_wdgts->tmp_w, app_wdgts->tmp_h);
     app_wdgts->cr_action = 0;
     gtk_widget_queue_draw(app_wdgts->w_drawing_aera);
     update_info_zoom(app_wdgts);
@@ -803,38 +957,44 @@ int on_menubar_new_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
 
     // Set sensitive to TRUE for all widgets
     gtk_widget_set_sensitive(app_wdgts->w_scale_brightness, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_scale_contrast, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_scale_temperature, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_scale_noise, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_scale_sharpen, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_entry_brightness, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_entry_contrast, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_entry_noise, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_entry_sharpen, TRUE);           
-    gtk_widget_set_sensitive(app_wdgts->w_entry_temperature, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_check_none, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_check_oldschool, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_check_glowfilter,TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_check_redflagfilter, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_check_summertimefilter, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_check_vogue, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_check_winterfrost, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_check_timeoclockfilter, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_btn_crop, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_btn_resize, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_entryH_crop, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_entryW_crop, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_cb_brush, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_btn_color, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_btn_fill, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_btn_text, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_btn_erase, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_btn_wipe, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_btn_motif, TRUE);      
+            gtk_widget_set_sensitive(app_wdgts->w_scale_contrast, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_scale_temperature, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_scale_noise, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_scale_sharpen, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_entry_brightness, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_entry_contrast, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_entry_noise, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_entry_sharpen, TRUE);           
+            gtk_widget_set_sensitive(app_wdgts->w_entry_temperature, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_check_none, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_check_oldschool, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_check_glowfilter,TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_check_redflagfilter, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_check_summertimefilter, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_check_vogue, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_check_winterfrost, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_check_timeoclockfilter, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_crop, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_resize, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_entryH_crop, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_entryW_crop, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_cb_brush, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_color, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_fill, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_text, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_erase, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_wipe, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_circle, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_square, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_pentagon, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_star, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_heart, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, TRUE);
+            gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, TRUE);      
 
     // Update preview
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
@@ -927,7 +1087,7 @@ int on_btn_undo_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
 {
     printf("%ld\n", sizeof(menuitem));
 
-    if(app_wdgts->gd_list->next->img != NULL)
+    if(app_wdgts->gd_list->next != NULL && app_wdgts->gd_list->next->img != NULL)
     {
         gdImagePtr prev_gd = pop_gdImage_list(app_wdgts);
 
@@ -1008,6 +1168,8 @@ int on_draw_event(GtkWidget *widget, cairo_t *cr, app_widgets *app_wdgts)
         gdk_cairo_set_source_pixbuf(cr, app_wdgts->tmp_img, 0, 0);
         cairo_paint(cr);
 
+        on_btn_color_color_set(app_wdgts->w_btn_color, app_wdgts);
+
         if(app_wdgts->cr_action)
         {
             gtk_widget_set_sensitive(app_wdgts->w_scale_brightness, FALSE);
@@ -1020,21 +1182,18 @@ int on_draw_event(GtkWidget *widget, cairo_t *cr, app_widgets *app_wdgts)
             gtk_widget_set_sensitive(app_wdgts->w_entry_temperature, FALSE);
             gtk_widget_set_sensitive(app_wdgts->w_entry_noise, FALSE);
             gtk_widget_set_sensitive(app_wdgts->w_entry_sharpen, FALSE);
-            gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, FALSE);
             gtk_widget_set_sensitive(app_wdgts->w_check_none, FALSE);
             gtk_widget_set_sensitive(app_wdgts->w_check_oldschool, FALSE);
             gtk_widget_set_sensitive(app_wdgts->w_check_glowfilter,FALSE);
             gtk_widget_set_sensitive(app_wdgts->w_check_redflagfilter, FALSE);
             gtk_widget_set_sensitive(app_wdgts->w_check_summertimefilter,FALSE);
+            gtk_widget_set_sensitive(app_wdgts->w_check_vogue,FALSE);
+            gtk_widget_set_sensitive(app_wdgts->w_check_winterfrost,FALSE);
+            gtk_widget_set_sensitive(app_wdgts->w_check_timeoclockfilter,FALSE);
             gtk_widget_set_sensitive(app_wdgts->w_btn_crop, FALSE);
             gtk_widget_set_sensitive(app_wdgts->w_btn_resize, FALSE);
             gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, FALSE);
             gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, FALSE);
-            if(!app_wdgts->focus_fill)
-                gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
-
-            if(!app_wdgts->focus_text)
-                gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
 
             gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
@@ -1162,7 +1321,7 @@ int on_draw_button_release_event(GtkWidget *widget, GdkEventButton *event,
     }
 
     else if(app_wdgts->focus_text){
-        gchar *fontname = gtk_font_chooser_get_font(app_wdgts->w_btn_font);
+        gchar *fontname = gtk_font_chooser_get_font(GTK_FONT_CHOOSER(app_wdgts->w_btn_font));
         printf("font: %s\n", fontname);
         char *font = "/usr/share/fonts/truetype/ubuntu/Ubuntu-LI.ttf";
         int size = 12;
@@ -1172,8 +1331,13 @@ int on_draw_button_release_event(GtkWidget *widget, GdkEventButton *event,
     }
 
     else if(app_wdgts->focus_motif){
-
-        add_motif(app_wdgts->gd_img, app_wdgts->gd_out, "cache/temp_img.png", "square", event->x, event->y, 0.2);
+        
+        int real_x =  event->x;
+        int real_y = event->y;
+        update_xy(app_wdgts, &real_x, &real_y);
+        printf("pattern type: %s, pattern size: %f\n", app_wdgts->pattern_type, app_wdgts->pattern_size);
+        add_motif(app_wdgts->gd_img, app_wdgts->gd_out, "cache/temp_img.png", app_wdgts->pattern_type, 
+                        real_x, real_y, app_wdgts->pattern_size);
         modif = 1;
     }
 
@@ -1302,27 +1466,6 @@ int on_btn_wipe_focus_out_event(GtkWidget *btn_fill, GdkEventMotion *event,
     app_wdgts->focus_wipe = 0;
     return 0;
 }
-
-int on_btn_motif_focus_in_event(GtkWidget *btn_fill, GdkEventMotion *event,
-        app_widgets *app_wdgts)
-{
-    printf("%ld\n", sizeof(btn_fill));
-    printf("%ld\n", sizeof(event));
-    printf("%ld\n", sizeof(app_wdgts));
-    app_wdgts->focus_motif = 1;
-    return 0;
-}
-
-int on_btn_motif_focus_out_event(GtkWidget *btn_fill, GdkEventMotion *event,
-        app_widgets *app_wdgts)
-{
-    printf("%ld\n", sizeof(btn_fill));
-    printf("%ld\n", sizeof(event));
-    printf("%ld\n", sizeof(app_wdgts));
-    app_wdgts->focus_motif = 0;
-    return 0;
-}
-
 //
 
 #pragma  endregion Drawing
@@ -1366,7 +1509,15 @@ int on_scale_brightness_value_changed(GtkMenuItem *menuitem,
     gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
-    gtk_widget_set_sensitive(app_wdgts->w_btn_motif, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_apply, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_circle, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_pentagon, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_square, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_star, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_heart, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     gtk_toggle_button_set_active(
@@ -1423,7 +1574,14 @@ int on_scale_contrast_value_changed(GtkMenuItem *menuitem,
     gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
-    gtk_widget_set_sensitive(app_wdgts->w_btn_motif, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_circle, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_pentagon, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_square, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_star, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_heart, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     gtk_toggle_button_set_active(
@@ -1481,7 +1639,14 @@ int on_scale_temperature_value_changed(GtkMenuItem *menuitem,
     gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
-    gtk_widget_set_sensitive(app_wdgts->w_btn_motif, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_circle, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_pentagon, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_square, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_star, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_heart, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     gtk_toggle_button_set_active(
@@ -1538,7 +1703,14 @@ int on_scale_noise_value_changed(GtkMenuItem *menuitem,
     gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
-    gtk_widget_set_sensitive(app_wdgts->w_btn_motif, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_circle, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_pentagon, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_square, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_star, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_heart, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     gtk_toggle_button_set_active(
@@ -1595,7 +1767,14 @@ int on_scale_sharpen_value_changed(GtkMenuItem *menuitem,
     gtk_widget_set_sensitive(app_wdgts->w_btn_color, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_fill, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_text, FALSE);
-    gtk_widget_set_sensitive(app_wdgts->w_btn_motif, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_circle, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_pentagon, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_square, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_star, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_heart, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     gtk_toggle_button_set_active(
@@ -1696,7 +1875,6 @@ int on_btn_apply_clicked(GtkMenuItem *menuitem, app_widgets *app_wdgts)
     gtk_widget_set_sensitive(app_wdgts->w_btn_color, TRUE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_fill, TRUE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_text, TRUE);
-    gtk_widget_set_sensitive(app_wdgts->w_btn_motif, TRUE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, FALSE);
 
     gtk_toggle_button_set_active(
@@ -1788,7 +1966,14 @@ int on_check_oldschool_toggled(GtkToggleButton *togglebutton,
         gtk_widget_set_sensitive(app_wdgts->w_scale_sharpen, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_noise, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_sharpen, FALSE);
-        gtk_widget_set_sensitive(app_wdgts->w_btn_motif, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_circle, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_pentagon, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_square, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_star, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_heart, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
                     app_wdgts->w_check_none), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
@@ -1847,7 +2032,14 @@ int on_check_summertimefilter_toggled(GtkToggleButton *togglebutton,
         gtk_widget_set_sensitive(app_wdgts->w_scale_sharpen, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_noise, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_sharpen, FALSE);
-        gtk_widget_set_sensitive(app_wdgts->w_btn_motif, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_circle, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_pentagon, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_square, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_star, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_heart, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
         gtk_toggle_button_set_active(
                 GTK_TOGGLE_BUTTON(app_wdgts->w_check_none), FALSE);
         gtk_toggle_button_set_active(
@@ -1906,7 +2098,14 @@ int on_check_glowfilter_toggled(GtkToggleButton *togglebutton,
         gtk_widget_set_sensitive(app_wdgts->w_scale_sharpen, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_noise, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_sharpen, FALSE);
-        gtk_widget_set_sensitive(app_wdgts->w_btn_motif, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_circle, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_pentagon, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_square, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_star, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_heart, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
         gtk_toggle_button_set_active(
                 GTK_TOGGLE_BUTTON(app_wdgts->w_check_none), FALSE);
         gtk_toggle_button_set_active(
@@ -1964,7 +2163,14 @@ int on_check_redflagfilter_toggled(GtkToggleButton *togglebutton,
         gtk_widget_set_sensitive(app_wdgts->w_scale_sharpen, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_noise, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_sharpen, FALSE);
-        gtk_widget_set_sensitive(app_wdgts->w_btn_motif, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_circle, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_pentagon, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_square, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_star, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_heart, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
                     app_wdgts->w_check_none), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
@@ -2023,7 +2229,14 @@ int on_check_vogue_toggled(GtkToggleButton *togglebutton,
         gtk_widget_set_sensitive(app_wdgts->w_scale_sharpen, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_noise, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_sharpen, FALSE);
-        gtk_widget_set_sensitive(app_wdgts->w_btn_motif, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_circle, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_pentagon, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_square, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_star, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_heart, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
                     app_wdgts->w_check_none), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
@@ -2082,7 +2295,14 @@ int on_check_winterfrost_toggled(GtkToggleButton *togglebutton,
         gtk_widget_set_sensitive(app_wdgts->w_scale_sharpen, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_noise, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_sharpen, FALSE);
-        gtk_widget_set_sensitive(app_wdgts->w_btn_motif, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_circle, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_pentagon, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_square, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_star, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_heart, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
                     app_wdgts->w_check_none), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
@@ -2141,7 +2361,14 @@ int on_check_timeoclock_toggled(GtkToggleButton *togglebutton,
         gtk_widget_set_sensitive(app_wdgts->w_scale_sharpen, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_noise, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_sharpen, FALSE);
-        gtk_widget_set_sensitive(app_wdgts->w_btn_motif, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_circle, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_pentagon, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_square, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_star, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_heart, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
                     app_wdgts->w_check_none), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
@@ -2316,6 +2543,13 @@ int on_scale_rotation_value_changed(GtkWidget *entry_rotation,
     return 0;
 }
 
+int on_entry_shapes_value_changed(GtkWidget *entry_shape,
+        app_widgets *app_wdgts)
+{
+    app_wdgts->pattern_size = gtk_spin_button_get_value(GTK_SPIN_BUTTON(entry_shape));
+    return 0;
+}
+
 int on_btn_text_focus_in_event(GtkWidget *text_button, GdkEventButton *event,
         app_widgets *app_wdgts)
 {
@@ -2333,7 +2567,132 @@ int on_btn_text_focus_out_event(GtkWidget *text_button, GdkEventButton *event,
     printf("%ld\n", sizeof(event));
     return 0;
 }
+
+int on_btn_circle_focus_in_event(GtkWidget *btn_fill, GdkEventMotion *event,
+        app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(btn_fill));
+    printf("%ld\n", sizeof(event));
+    printf("%ld\n", sizeof(app_wdgts));
+    app_wdgts->focus_motif = 1;
+    app_wdgts->pattern_type = "circle";
+    return 0;
+}
+
+int on_btn_circle_focus_out_event(GtkWidget *btn_fill, GdkEventMotion *event,
+        app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(btn_fill));
+    printf("%ld\n", sizeof(event));
+    printf("%ld\n", sizeof(app_wdgts));
+    app_wdgts->focus_motif = 0;
+    return 0;
+}
+
+int on_btn_square_focus_in_event(GtkWidget *btn_fill, GdkEventMotion *event,
+        app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(btn_fill));
+    printf("%ld\n", sizeof(event));
+    printf("%ld\n", sizeof(app_wdgts));
+    app_wdgts->focus_motif = 1;
+    app_wdgts->pattern_type = "square";
+    return 0;
+}
+
+int on_btn_square_focus_out_event(GtkWidget *btn_fill, GdkEventMotion *event,
+        app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(btn_fill));
+    printf("%ld\n", sizeof(event));
+    printf("%ld\n", sizeof(app_wdgts));
+    app_wdgts->focus_motif = 0;
+    return 0;
+}
+
+int on_btn_triangle_focus_in_event(GtkWidget *btn_fill, GdkEventMotion *event,
+        app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(btn_fill));
+    printf("%ld\n", sizeof(event));
+    printf("%ld\n", sizeof(app_wdgts));
+    app_wdgts->focus_motif = 1;
+    app_wdgts->pattern_type = "triangle";
+    return 0;
+}
+
+int on_btn_triangle_focus_out_event(GtkWidget *btn_fill, GdkEventMotion *event,
+        app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(btn_fill));
+    printf("%ld\n", sizeof(event));
+    printf("%ld\n", sizeof(app_wdgts));
+    app_wdgts->focus_motif = 0;
+    return 0;
+}
+
+int on_btn_pentagon_focus_in_event(GtkWidget *btn_fill, GdkEventMotion *event,
+        app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(btn_fill));
+    printf("%ld\n", sizeof(event));
+    printf("%ld\n", sizeof(app_wdgts));
+    app_wdgts->focus_motif = 1;
+    app_wdgts->pattern_type = "pentagon";
+    return 0;
+}
+
+int on_btn_pentagon_focus_out_event(GtkWidget *btn_fill, GdkEventMotion *event,
+        app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(btn_fill));
+    printf("%ld\n", sizeof(event));
+    printf("%ld\n", sizeof(app_wdgts));
+    app_wdgts->focus_motif = 0;
+    return 0;
+}
+
+int on_btn_star_focus_in_event(GtkWidget *btn_fill, GdkEventMotion *event,
+        app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(btn_fill));
+    printf("%ld\n", sizeof(event));
+    printf("%ld\n", sizeof(app_wdgts));
+    app_wdgts->focus_motif = 1;
+    app_wdgts->pattern_type = "star";
+    return 0;
+}
+
+int on_btn_star_focus_out_event(GtkWidget *btn_fill, GdkEventMotion *event,
+        app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(btn_fill));
+    printf("%ld\n", sizeof(event));
+    printf("%ld\n", sizeof(app_wdgts));
+    app_wdgts->focus_motif = 0;
+    return 0;
+}
+
+int on_btn_heart_focus_in_event(GtkWidget *btn_fill, GdkEventMotion *event,
+        app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(btn_fill));
+    printf("%ld\n", sizeof(event));
+    printf("%ld\n", sizeof(app_wdgts));
+    app_wdgts->focus_motif = 1;
+    app_wdgts->pattern_type = "heart";
+    return 0;
+}
+
+int on_btn_heart_focus_out_event(GtkWidget *btn_fill, GdkEventMotion *event,
+        app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(btn_fill));
+    printf("%ld\n", sizeof(event));
+    printf("%ld\n", sizeof(app_wdgts));
+    app_wdgts->focus_motif = 0;
+    return 0;
+}
 //
 ////
-
 #pragma  endregion OthersFunctions

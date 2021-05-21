@@ -59,8 +59,7 @@ int set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c, int tks,
     int color = gdImageColorAllocateAlpha(im, color_info->r,
                     color_info->g, color_info->b, color_info->a);
     
-    if(color == 0)
-        errx(EXIT_FAILURE, "Couldn't create color.");
+    
 
     gdImageSetThickness(im, tks + tks_modif);
 
@@ -116,8 +115,7 @@ void line_to (gdImagePtr im, FILE *out, void *point_list,
         gdImageColorAllocateAlpha(im, color_info->r, color_info->g,
                                     color_info->b, color_info->a);
 
-    if(color == 0)
-        errx(EXIT_FAILURE, "Couldn't create color.");
+    
 
     gdImageSetThickness(im, tks + tks_modif);
 
@@ -158,8 +156,7 @@ void erase(gdImagePtr im, FILE *out, void *point_list,
         gdImageColorAllocate(im, color_info->r, color_info->g,
                                     color_info->b);
 
-    if(color == 0)
-        errx(EXIT_FAILURE, "Couldn't create color.");
+    
 
     /*struct BrushType *b = malloc(sizeof(struct BrushType));
     set_brush_type(im, &b, color_info);
@@ -252,14 +249,9 @@ void fill (gdImagePtr im, FILE *out, void *src, void *dst, int x, int y,
     struct Color *dst_info = dst;
     //int alpha_old = dst_info->a;
     //dst_info->a = dst_info->a + 127;
-
-    int color_src = gdImageColorAllocate(im, src_info->r, src_info->g, 
-                                                        src_info->b);
+    
     int color_dst = gdImageColorAllocate(im, dst_info->r, dst_info->g,
                                                         dst_info->b);
-
-    if(color_src == 0 || color_dst == 0)
-        errx(EXIT_FAILURE, "Couldn't create color.");
     
     int width = gdImageSX(im);
     int height = gdImageSY(im);    
