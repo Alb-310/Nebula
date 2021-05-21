@@ -113,6 +113,7 @@ typedef struct {
     GtkWidget *w_btn_erase;
     GtkWidget *w_btn_wipe;
     GtkWidget *w_btn_motif;
+    GtkWidget *w_btn_font;
 
     int *color_array;
     int *draw_array;
@@ -292,6 +293,8 @@ int main(int argc, char *argv[])
             gtk_builder_get_object(builder, "btn_wipe"));
     widgets->w_btn_motif = GTK_WIDGET(
             gtk_builder_get_object(builder, "btn_motif"));
+    widgets->w_btn_font = GTK_WIDGET(
+            gtk_builder_get_object(builder, "btn_font"));
 
     gtk_builder_connect_signals(builder, widgets);
     g_object_unref(builder);
@@ -1077,8 +1080,20 @@ int on_draw_event(GtkWidget *widget, cairo_t *cr, app_widgets *app_wdgts)
                     app_wdgts->color_get->g, 
                     app_wdgts->color_get->b,
                     app_wdgts->color_get->a);
+                
+            double thickness;   
 
-            cairo_set_line_width(cr, (double)app_wdgts->thickness);
+            if(app_wdgts->zoom == 0)
+                thickness = app_wdgts->thickness;     
+
+            else if(app_wdgts->zoom > 0)
+            {
+                thickness = (double) app_wdgts->thickness*app_wdgts->zoom;
+            }
+            else
+                thickness = (double) app_wdgts->thickness/-(app_wdgts->zoom);
+
+            cairo_set_line_width(cr, thickness);
 
             while (point != NULL)
             {
@@ -1147,6 +1162,8 @@ int on_draw_button_release_event(GtkWidget *widget, GdkEventButton *event,
     }
 
     else if(app_wdgts->focus_text){
+        gchar *fontname = gtk_font_chooser_get_font(app_wdgts->w_btn_font);
+        printf("font: %s\n", fontname);
         char *font = "/usr/share/fonts/truetype/ubuntu/Ubuntu-LI.ttf";
         int size = 12;
         Add_text(app_wdgts->gd_img, app_wdgts->gd_out, "cache/temp_img.png",
