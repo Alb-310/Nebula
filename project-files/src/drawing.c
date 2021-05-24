@@ -65,6 +65,7 @@ int set_pixel(gdImagePtr im, FILE *out, int x, int y, void* c, int tks,
 
     if (type != 4)
     {
+        tks_modif /= 2;
         switch(tks){
             case 1: gdImageFilledRectangle(im, x - tks_modif, y - tks_modif,
                                     x + tks_modif, y + tks_modif, color); break;
