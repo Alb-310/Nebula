@@ -15,5 +15,6 @@ void WinterFrost_Filter(gdImagePtr image, FILE *Output, char *path);
 
 void TimeOClock_Filter(gdImagePtr image, FILE *Output, char *path);
 
+void WeekDay_Filter(gdImagePtr image, FILE *Output, char *path  );
 
 #endif
