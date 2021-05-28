@@ -52,6 +52,11 @@
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
+  <object class="GtkFileFilter" id="filefilter1">
+    <patterns>
+      <pattern>*.png</pattern>
+    </patterns>
+  </object>
   <object class="GtkListStore" id="liststore1">
     <columns>
       <!-- column-name text -->
@@ -223,6 +228,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_menubar_save_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -232,6 +238,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_menubar_save_as_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -315,7 +322,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
-                        <property name="image">btn_collage_image</property>
                         <property name="use_stock">False</property>
                         <signal name="activate" handler="on_btn_collage_activate" swapped="no"/>
                       </object>
@@ -490,8 +496,8 @@
                                 <property name="valign">start</property>
                                 <property name="font">Sans 12</property>
                                 <property name="language">en-us</property>
-                                <property name="level">GTK_FONT_CHOOSER_LEVEL_SIZE | GTK_FONT_CHOOSER_LEVEL_FAMILY</property>
                                 <property name="preview_text"/>
+                                <property name="show_preview_entry">False</property>
                                 <property name="show_style">False</property>
                                 <property name="show_size">False</property>
                               </object>
@@ -2222,6 +2228,67 @@
       <action-widget response="-6">btn_close</action-widget>
     </action-widgets>
   </object>
+  <object class="GtkFileChooserDialog" id="dlg_file_save">
+    <property name="width_request">1280</property>
+    <property name="height_request">720</property>
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <property name="transient_for">window_main</property>
+    <property name="action">save</property>
+    <property name="do_overwrite_confirmation">True</property>
+    <property name="filter">filefilter1</property>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="button1">
+                <property name="label" translatable="yes">Save</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button2">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-5">button1</action-widget>
+      <action-widget response="-6">button2</action-widget>
+    </action-widgets>
+  </object>
   <object class="GtkApplicationWindow" id="window_collage">
     <property name="can_focus">False</property>
     <property name="resizable">False</property>
@@ -2300,7 +2367,7 @@
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="label" translatable="yes">Choose background color: </property>
+                                        <property name="label" translatable="yes">Choose a background color: </property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -2309,10 +2376,11 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkColorButton">
+                                      <object class="GtkColorButton" id="btn_collage_color">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
+                                        <signal name="color-set" handler="on_btn_collage_color_color_set" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -2349,6 +2417,7 @@
                               <object class="GtkAlignment">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="top_padding">12</property>
                                 <property name="bottom_padding">12</property>
                                 <property name="left_padding">12</property>
                                 <property name="right_padding">12</property>
@@ -2370,26 +2439,54 @@
                                         <property name="hexpand">True</property>
                                         <property name="vexpand">True</property>
                                         <property name="orientation">vertical</property>
+                                        <property name="spacing">18</property>
                                         <child>
                                           <object class="GtkBox">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="halign">center</property>
-                                            <property name="margin_bottom">12</property>
                                             <property name="orientation">vertical</property>
                                             <property name="spacing">12</property>
                                             <child>
-                                              <object class="GtkButton" id="btn_collage_img1">
-                                                <property name="label" translatable="yes">Image 1</property>
+                                              <object class="GtkBox">
                                                 <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="receives_default">True</property>
-                                                <signal name="clicked" handler="on_btn_collage_img1_clicked" swapped="no"/>
+                                                <property name="can_focus">False</property>
+                                                <property name="halign">center</property>
+                                                <property name="spacing">4</property>
+                                                <child>
+                                                  <object class="GtkButton" id="btn_collage_img1">
+                                                    <property name="label" translatable="yes">Choose image 1</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">True</property>
+                                                    <signal name="clicked" handler="on_btn_collage_img1_clicked" swapped="no"/>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkButton" id="btn_collage_delete1">
+                                                    <property name="label">gtk-delete</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">True</property>
+                                                    <property name="use_stock">True</property>
+                                                    <signal name="clicked" handler="on_btn_collage_delete1_clicked" swapped="no"/>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
                                                 <property name="fill">True</property>
-                                                <property name="position">0</property>
+                                                <property name="position">1</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -2436,17 +2533,45 @@
                                             <property name="orientation">vertical</property>
                                             <property name="spacing">12</property>
                                             <child>
-                                              <object class="GtkButton" id="btn_collage_img2">
-                                                <property name="label" translatable="yes">Image 2</property>
+                                              <object class="GtkBox">
                                                 <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="receives_default">True</property>
-                                                <signal name="clicked" handler="on_btn_collage_img2_clicked" swapped="no"/>
+                                                <property name="can_focus">False</property>
+                                                <property name="halign">center</property>
+                                                <property name="spacing">4</property>
+                                                <child>
+                                                  <object class="GtkButton" id="btn_collage_img2">
+                                                    <property name="label" translatable="yes">Choose image 2</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">True</property>
+                                                    <signal name="clicked" handler="on_btn_collage_img2_clicked" swapped="no"/>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkButton" id="btn_collage_delete2">
+                                                    <property name="label">gtk-delete</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">True</property>
+                                                    <property name="use_stock">True</property>
+                                                    <signal name="clicked" handler="on_btn_collage_delete2_clicked" swapped="no"/>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
                                                 <property name="fill">True</property>
-                                                <property name="position">0</property>
+                                                <property name="position">1</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -2500,26 +2625,54 @@
                                         <property name="hexpand">True</property>
                                         <property name="vexpand">True</property>
                                         <property name="orientation">vertical</property>
+                                        <property name="spacing">18</property>
                                         <child>
                                           <object class="GtkBox">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="halign">center</property>
-                                            <property name="margin_bottom">12</property>
                                             <property name="orientation">vertical</property>
                                             <property name="spacing">12</property>
                                             <child>
-                                              <object class="GtkButton" id="btn_collage_img3">
-                                                <property name="label" translatable="yes">Image 3</property>
+                                              <object class="GtkBox">
                                                 <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="receives_default">True</property>
-                                                <signal name="clicked" handler="on_btn_collage_img3_clicked" swapped="no"/>
+                                                <property name="can_focus">False</property>
+                                                <property name="halign">center</property>
+                                                <property name="spacing">4</property>
+                                                <child>
+                                                  <object class="GtkButton" id="btn_collage_img3">
+                                                    <property name="label" translatable="yes">Choose image 3</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">True</property>
+                                                    <signal name="clicked" handler="on_btn_collage_img3_clicked" swapped="no"/>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkButton" id="btn_collage_delete3">
+                                                    <property name="label">gtk-delete</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">True</property>
+                                                    <property name="use_stock">True</property>
+                                                    <signal name="clicked" handler="on_btn_collage_delete3_clicked" swapped="no"/>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
                                                 <property name="fill">True</property>
-                                                <property name="position">0</property>
+                                                <property name="position">1</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -2566,17 +2719,45 @@
                                             <property name="orientation">vertical</property>
                                             <property name="spacing">12</property>
                                             <child>
-                                              <object class="GtkButton" id="btn_collage_img4">
-                                                <property name="label" translatable="yes">Image 4</property>
+                                              <object class="GtkBox">
                                                 <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="receives_default">True</property>
-                                                <signal name="clicked" handler="on_btn_collage_img4_clicked" swapped="no"/>
+                                                <property name="can_focus">False</property>
+                                                <property name="halign">center</property>
+                                                <property name="spacing">4</property>
+                                                <child>
+                                                  <object class="GtkButton" id="btn_collage_img4">
+                                                    <property name="label" translatable="yes">Choose image 4</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">True</property>
+                                                    <signal name="clicked" handler="on_btn_collage_img4_clicked" swapped="no"/>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkButton" id="btn_collage_delete4">
+                                                    <property name="label">gtk-delete</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">True</property>
+                                                    <property name="use_stock">True</property>
+                                                    <signal name="clicked" handler="on_btn_collage_delete4_clicked" swapped="no"/>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
                                                 <property name="fill">True</property>
-                                                <property name="position">0</property>
+                                                <property name="position">1</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -2689,24 +2870,29 @@
                               <object class="GtkGrid">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="valign">start</property>
+                                <property name="halign">start</property>
+                                <property name="valign">center</property>
                                 <property name="row_spacing">4</property>
                                 <property name="column_spacing">4</property>
-                                <property name="row_homogeneous">True</property>
-                                <property name="column_homogeneous">True</property>
                                 <child>
                                   <object class="GtkBox">
+                                    <property name="width_request">375</property>
+                                    <property name="height_request">211</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
+                                    <property name="halign">start</property>
                                     <property name="valign">start</property>
                                     <property name="orientation">vertical</property>
                                     <child>
-                                      <object class="GtkImage" id="prev_none1">
+                                      <object class="GtkImage" id="prev_preset1">
                                         <property name="width_request">160</property>
                                         <property name="height_request">100</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="stock">gtk-missing-image</property>
+                                        <property name="hexpand">True</property>
+                                        <property name="vexpand">True</property>
+                                        <property name="icon_name">missingImage</property>
+                                        <property name="icon_size">0</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -2715,12 +2901,14 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkCheckButton" id="check_none1">
-                                        <property name="label" translatable="yes">Preset</property>
+                                      <object class="GtkCheckButton" id="check_preset1">
+                                        <property name="label" translatable="yes">Preset 1</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
+                                        <property name="halign">center</property>
                                         <property name="draw_indicator">True</property>
+                                        <signal name="toggled" handler="on_check_preset1_toggled" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -2736,17 +2924,23 @@
                                 </child>
                                 <child>
                                   <object class="GtkBox">
+                                    <property name="width_request">375</property>
+                                    <property name="height_request">211</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
+                                    <property name="halign">start</property>
                                     <property name="valign">start</property>
                                     <property name="orientation">vertical</property>
                                     <child>
-                                      <object class="GtkImage" id="prev_oldschool1">
+                                      <object class="GtkImage" id="prev_preset3">
                                         <property name="width_request">160</property>
                                         <property name="height_request">100</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="stock">gtk-missing-image</property>
+                                        <property name="hexpand">True</property>
+                                        <property name="vexpand">True</property>
+                                        <property name="icon_name">missingImage</property>
+                                        <property name="icon_size">0</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -2755,12 +2949,62 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkCheckButton" id="check_oldschool1">
-                                        <property name="label" translatable="yes">Preset</property>
+                                      <object class="GtkCheckButton" id="check_preset3">
+                                        <property name="label" translatable="yes">Preset 3</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
+                                        <property name="halign">center</property>
                                         <property name="draw_indicator">True</property>
+                                        <signal name="toggled" handler="on_check_preset3_toggled" swapped="no"/>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">0</property>
+                                    <property name="top_attach">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="width_request">375</property>
+                                    <property name="height_request">211</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="halign">start</property>
+                                    <property name="valign">start</property>
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkImage" id="prev_preset2">
+                                        <property name="width_request">160</property>
+                                        <property name="height_request">100</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="hexpand">True</property>
+                                        <property name="vexpand">True</property>
+                                        <property name="icon_name">missingImage</property>
+                                        <property name="icon_size">0</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCheckButton" id="check_preset2">
+                                        <property name="label" translatable="yes">Preset 2</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="halign">center</property>
+                                        <property name="draw_indicator">True</property>
+                                        <signal name="toggled" handler="on_check_preset2_toggled" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -2775,284 +3019,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkBox">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="valign">start</property>
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <object class="GtkImage">
-                                        <property name="width_request">160</property>
-                                        <property name="height_request">100</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="stock">gtk-missing-image</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkCheckButton">
-                                        <property name="label" translatable="yes">Preset</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="draw_indicator">True</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">2</property>
-                                    <property name="top_attach">2</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkBox">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="valign">start</property>
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <object class="GtkImage" id="prev_winterfrost1">
-                                        <property name="width_request">160</property>
-                                        <property name="height_request">100</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="stock">gtk-missing-image</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkCheckButton" id="check_winterfrost1">
-                                        <property name="label" translatable="yes">Preset</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="draw_indicator">True</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">0</property>
-                                    <property name="top_attach">2</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkBox">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="valign">start</property>
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <object class="GtkImage" id="prev_summertimefilter1">
-                                        <property name="width_request">160</property>
-                                        <property name="height_request">100</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="stock">gtk-missing-image</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkCheckButton" id="check_summertimefilter1">
-                                        <property name="label" translatable="yes">Preset</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="draw_indicator">True</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="top_attach">1</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkBox">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="valign">start</property>
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <object class="GtkImage" id="prev_glowfilter1">
-                                        <property name="width_request">160</property>
-                                        <property name="height_request">100</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="stock">gtk-missing-image</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkCheckButton" id="check_glowfilter1">
-                                        <property name="label" translatable="yes">Preset</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="draw_indicator">True</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">2</property>
-                                    <property name="top_attach">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkBox">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="valign">start</property>
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <object class="GtkImage" id="prev_timeoclockfilter1">
-                                        <property name="width_request">160</property>
-                                        <property name="height_request">100</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="stock">gtk-missing-image</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkCheckButton" id="check_timeoclockfilter1">
-                                        <property name="label" translatable="yes">Preset</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="draw_indicator">True</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="top_attach">2</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkBox">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="valign">start</property>
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <object class="GtkImage" id="prev_vogue1">
-                                        <property name="width_request">160</property>
-                                        <property name="height_request">100</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="stock">gtk-missing-image</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkCheckButton" id="check_vogue1">
-                                        <property name="label" translatable="yes">Preset</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="draw_indicator">True</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">2</property>
-                                    <property name="top_attach">1</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkBox">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="valign">start</property>
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <object class="GtkImage" id="prev_redflagfilter1">
-                                        <property name="width_request">160</property>
-                                        <property name="height_request">100</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="stock">gtk-missing-image</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkCheckButton" id="check_redflagfilter1">
-                                        <property name="label" translatable="yes">Preset</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="draw_indicator">True</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">0</property>
-                                    <property name="top_attach">1</property>
-                                  </packing>
+                                  <placeholder/>
                                 </child>
                               </object>
                             </child>
@@ -3093,8 +3060,8 @@
             <property name="baseline_position">top</property>
             <child>
               <object class="GtkFrame">
-                <property name="width_request">500</property>
-                <property name="height_request">250</property>
+                <property name="width_request">640</property>
+                <property name="height_request">360</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="halign">center</property>
@@ -3109,10 +3076,25 @@
                     <property name="left_padding">12</property>
                     <property name="right_padding">12</property>
                     <child>
-                      <object class="GtkImage">
+                      <object class="GtkScrolledWindow">
+                        <property name="width_request">640</property>
+                        <property name="height_request">360</property>
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="stock">gtk-missing-image</property>
+                        <property name="can_focus">True</property>
+                        <property name="shadow_type">in</property>
+                        <child>
+                          <object class="GtkViewport">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkImage" id="prev_final">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="stock">gtk-missing-image</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
                       </object>
                     </child>
                   </object>

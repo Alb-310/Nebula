@@ -101,7 +101,9 @@ void add_motif(gdImagePtr dst, FILE *out, char* path, char *motif,int dst_x,int 
 	fclose(out);
 }
 
-void collage(char *filename_background,char *filename_first_picture,char *filename_second_picture,char *filename_third_picture,char *filename_fourth_picture)
+void collage(char *filename_background, char *filename_first_picture, 
+			 char *filename_second_picture, char *filename_third_picture,
+			 char *filename_fourth_picture, char *dst_path)
 {
 	if(strcmp(filename_third_picture,"")==0 && strcmp(filename_fourth_picture,"")== 0)
 	{
@@ -109,7 +111,7 @@ void collage(char *filename_background,char *filename_first_picture,char *filena
 		gdImagePtr first_pic;
 		gdImagePtr second_pic;
 		FILE *out;
-		out = fopen("result.png","wb");
+		out = fopen(dst_path,"wb");
 		background = gdImageCreateFromFile(filename_background);
 		background = gdImageScale(background,1920,1080);
 		first_pic = gdImageCreateFromFile(filename_first_picture);
@@ -140,7 +142,7 @@ void collage(char *filename_background,char *filename_first_picture,char *filena
 		gdImagePtr second_pic;
 		gdImagePtr third_pic;
 		FILE *out;
-		out = fopen("result.png","wb");
+		out = fopen(dst_path,"wb");
 		background = gdImageCreateFromFile(filename_background);
 		background = gdImageScale(background,1920,1080);
 		first_pic = gdImageCreateFromFile(filename_first_picture);
@@ -176,7 +178,7 @@ void collage(char *filename_background,char *filename_first_picture,char *filena
 		gdImagePtr third_pic;
 		gdImagePtr fourth_pic;
 		FILE *out;
-		out = fopen("result.png","wb");
+		out = fopen(dst_path,"wb");
 		background = gdImageCreateFromFile(filename_background);
 		background = gdImageScale(background,1920,1080);
 		first_pic = gdImageCreateFromFile(filename_first_picture);
@@ -211,7 +213,9 @@ void collage(char *filename_background,char *filename_first_picture,char *filena
 	}
 }
 
-void collage_2(char *filename_background,char *filename_first_picture,char *filename_second_picture,char *filename_third_picture,char *filename_fourth_picture)
+void collage_2(char *filename_background, char *filename_first_picture,
+			   char *filename_second_picture, char *filename_third_picture,
+			   char *filename_fourth_picture, char *dst_path)
 {
 	if(strcmp(filename_third_picture,"")==0 && strcmp(filename_fourth_picture,"")== 0)
 	{
@@ -219,7 +223,7 @@ void collage_2(char *filename_background,char *filename_first_picture,char *file
 		gdImagePtr first_pic;
 		gdImagePtr second_pic;
 		FILE *out;
-		out = fopen("result.png","wb");
+		out = fopen(dst_path,"wb");
 		background = gdImageCreateFromFile(filename_background);
 		background = gdImageScale(background,1920,1080);
 		first_pic = gdImageCreateFromFile(filename_first_picture);
@@ -251,7 +255,7 @@ void collage_2(char *filename_background,char *filename_first_picture,char *file
 		gdImagePtr second_pic;
 		gdImagePtr third_pic;
 		FILE *out;
-		out = fopen("result.png","wb");
+		out = fopen(dst_path,"wb");
 		background = gdImageCreateFromFile(filename_background);
 		background = gdImageScale(background,1920,1080);
 		first_pic = gdImageCreateFromFile(filename_first_picture);
@@ -288,7 +292,7 @@ void collage_2(char *filename_background,char *filename_first_picture,char *file
 		gdImagePtr third_pic;
 		gdImagePtr fourth_pic;
 		FILE *out;
-		out = fopen("result.png","wb");
+		out = fopen(dst_path,"wb");
 		background = gdImageCreateFromFile(filename_background);
 		background = gdImageScale(background,1920,1080);
 		first_pic = gdImageCreateFromFile(filename_first_picture);
@@ -324,7 +328,9 @@ void collage_2(char *filename_background,char *filename_first_picture,char *file
 	}
 }
 
-void collage_3(char *filename_background,char *filename_first_picture,char *filename_second_picture,char *filename_third_picture,char *filename_fourth_picture)
+void collage_3(char *filename_background, char *filename_first_picture,
+			   char *filename_second_picture, char *filename_third_picture,
+			   char *filename_fourth_picture, char *dst_path)
 {
 	gdImagePtr background;
 	gdImagePtr first_pic;
@@ -332,7 +338,7 @@ void collage_3(char *filename_background,char *filename_first_picture,char *file
 	gdImagePtr third_pic;
 	gdImagePtr fourth_pic;
 	FILE *out;
-	out = fopen("result.png","wb");
+	out = fopen(dst_path,"wb");
 	background = gdImageCreateFromFile(filename_background);
 	background = gdImageScale(background,1920,1080);
 	first_pic = gdImageCreateFromFile(filename_first_picture);
@@ -366,14 +372,16 @@ void collage_3(char *filename_background,char *filename_first_picture,char *file
 	fclose(out);
 }
 
-void collage_4(char *filename_background,char *filename_first_picture,char *filename_second_picture,char *filename_third_picture)
+void collage_4(char *filename_background, char *filename_first_picture,
+			   char *filename_second_picture, char *filename_third_picture,
+			   char *dst_path)
 {
 	gdImagePtr background;
 	gdImagePtr first_pic;
 	gdImagePtr second_pic;
 	gdImagePtr third_pic;
 	FILE *out;
-	out = fopen("result.png","wb");
+	out = fopen(dst_path,"wb");
 	background = gdImageCreateFromFile(filename_background);
 	background = gdImageScale(background,1920,1080);
 	first_pic = gdImageCreateFromFile(filename_first_picture);

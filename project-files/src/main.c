@@ -67,6 +67,7 @@ typedef struct {
     // Pointer to GtkWidget
     GtkWidget *w_window;
     GtkWidget *w_dlg_file_choose;
+    GtkWidget *w_dlg_file_save;
     GtkWidget *w_img_main;
     GtkWidget *w_scale_brightness;
     GtkWidget *w_scale_contrast;
@@ -133,9 +134,25 @@ typedef struct {
     GtkWidget *w_prev_img2;
     GtkWidget *w_prev_img3;
     GtkWidget *w_prev_img4;
+    GtkWidget *w_prev_preset1;
+    GtkWidget *w_prev_preset2;
+    GtkWidget *w_prev_preset3;
+    GtkWidget *w_check_preset1;
+    GtkWidget *w_check_preset2;
+    GtkWidget *w_check_preset3;
+    GtkWidget *w_prev_final;
+    GtkWidget *w_btn_collage_img1;
+    GtkWidget *w_btn_collage_img2;
+    GtkWidget *w_btn_collage_img3;
+    GtkWidget *w_btn_collage_img4;
+    GtkWidget *w_btn_collage_delete1;
+    GtkWidget *w_btn_collage_delete2;
+    GtkWidget *w_btn_collage_delete3;
+    GtkWidget *w_btn_collage_delete4;
 
     int *color_array;
     int *draw_array;
+    char* save_path;
 
     // Temp. image info
     GdkPixbuf *tmp_img;
@@ -164,6 +181,14 @@ typedef struct {
     struct Color *color; 
     struct Cairo_color *color_get;
     int cr_action; 
+
+    // Collage info
+    int img_count;
+    char *img1_path;
+    char *img2_path;
+    char *img3_path;
+    char *img4_path;
+    GdkPixbuf *prev_final;
 
     // global variables
     char *resolution_info;
@@ -266,6 +291,10 @@ int main(int argc, char *argv[])
     widgets->pattern_size = 0.3;
     widgets->pattern_type = "square";
 
+    widgets->img_count = 0;
+
+    widgets->save_path = "";
+
     gtk_init(&argc, &argv);
 
     builder = gtk_builder_new_from_file("src/glade/window_main.glade");
@@ -274,6 +303,8 @@ int main(int argc, char *argv[])
             gtk_builder_get_object(builder, "window_main"));
     widgets->w_dlg_file_choose = GTK_WIDGET(
             gtk_builder_get_object(builder, "dlg_file_choose"));
+    widgets->w_dlg_file_save = GTK_WIDGET(
+            gtk_builder_get_object(builder, "dlg_file_save"));
     widgets->w_drawing_aera = GTK_WIDGET(
             gtk_builder_get_object(builder, "drw_area"));
     widgets->w_scale_brightness = GTK_WIDGET(
@@ -404,6 +435,36 @@ int main(int argc, char *argv[])
             gtk_builder_get_object(builder, "prev_img3"));
     widgets->w_prev_img4 = GTK_WIDGET(
             gtk_builder_get_object(builder, "prev_img4"));
+    widgets->w_prev_preset1 = GTK_WIDGET(
+            gtk_builder_get_object(builder, "prev_preset1"));
+    widgets->w_prev_preset2 = GTK_WIDGET(
+            gtk_builder_get_object(builder, "prev_preset2"));
+    widgets->w_prev_preset3 = GTK_WIDGET(
+            gtk_builder_get_object(builder, "prev_preset3"));
+    widgets->w_check_preset1 = GTK_WIDGET(
+            gtk_builder_get_object(builder, "check_preset1"));
+    widgets->w_check_preset2 = GTK_WIDGET(
+            gtk_builder_get_object(builder, "check_preset2"));
+    widgets->w_check_preset3 = GTK_WIDGET(
+            gtk_builder_get_object(builder, "check_preset3"));
+    widgets->w_prev_final = GTK_WIDGET(
+            gtk_builder_get_object(builder, "prev_final"));
+    widgets->w_btn_collage_img1 = GTK_WIDGET(
+            gtk_builder_get_object(builder, "btn_collage_img1"));
+    widgets->w_btn_collage_img2 = GTK_WIDGET(
+            gtk_builder_get_object(builder, "btn_collage_img2"));
+    widgets->w_btn_collage_img3 = GTK_WIDGET(
+            gtk_builder_get_object(builder, "btn_collage_img3"));
+    widgets->w_btn_collage_img4 = GTK_WIDGET(
+            gtk_builder_get_object(builder, "btn_collage_img4"));
+    widgets->w_btn_collage_delete1 = GTK_WIDGET(
+            gtk_builder_get_object(builder, "btn_collage_delete1"));
+    widgets->w_btn_collage_delete2 = GTK_WIDGET(
+            gtk_builder_get_object(builder, "btn_collage_delete2"));
+    widgets->w_btn_collage_delete3 = GTK_WIDGET(
+            gtk_builder_get_object(builder, "btn_collage_delete3"));
+    widgets->w_btn_collage_delete4 = GTK_WIDGET(
+            gtk_builder_get_object(builder, "btn_collage_delete4"));
 
     gtk_builder_connect_signals(builder, widgets);
     g_object_unref(builder);
@@ -412,6 +473,8 @@ int main(int argc, char *argv[])
             GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
 
     init_shape_and_pattern(widgets);
+
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(widgets->w_dlg_file_save), "Untitled.png");
 
     //Set default states & values
     gtk_widget_set_sensitive(widgets->w_scale_brightness, FALSE);
@@ -737,6 +800,111 @@ int update_xy(app_widgets *app_widgets, int *x, int *y)
 
     return 0;
 }
+
+int init_main_window(app_widgets *app_wdgts)
+{
+    // Set sensitive to TRUE for all widgets
+    gtk_widget_set_sensitive(app_wdgts->w_scale_brightness, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_scale_contrast, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_scale_temperature, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_scale_noise, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_scale_sharpen, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_entry_brightness, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_entry_contrast, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_entry_noise, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_entry_sharpen, TRUE);           
+    gtk_widget_set_sensitive(app_wdgts->w_entry_temperature, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_check_none, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_check_oldschool, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_check_glowfilter,TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_check_redflagfilter, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_check_summertimefilter, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_check_vogue, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_check_winterfrost, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_check_timeoclockfilter, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_crop, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_resize, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_entryH_crop, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_entryW_crop, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_brush, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_color, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_fill, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_text, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_erase, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_wipe, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_circle, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_pentagon, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_square, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_star, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_heart, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, TRUE);
+    gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, TRUE); 
+    gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, TRUE);
+
+    GdkRGBA *color_set = malloc(sizeof(GdkRGBA));
+    color_set->red = 0.0;
+    color_set->green = 0.0;
+    color_set->blue = 0.0;
+    color_set->alpha = 1.0;            
+
+    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(app_wdgts->w_btn_color), color_set); 
+    free(color_set);
+
+    // gets info of the image
+    int img_w = gdImageSX(app_wdgts->gd_img);
+    int img_h = gdImageSY(app_wdgts->gd_img);
+
+    gtk_spin_button_set_value(
+            GTK_SPIN_BUTTON(app_wdgts->w_entryW_crop), img_w);
+    gtk_spin_button_set_value(
+            GTK_SPIN_BUTTON(app_wdgts->w_entryH_crop), img_h);
+
+    app_wdgts->tmp_w = img_w;
+    app_wdgts->tmp_h = img_h;
+    app_wdgts->gd_w = img_w;
+    app_wdgts->gd_h = img_h;
+    app_wdgts->zoomed_w = img_w;
+    app_wdgts->zoomed_h = img_h;
+
+    init_color_array(app_wdgts);
+
+    // Redraw the drawing area to display the image in the UI
+    gtk_widget_set_size_request(app_wdgts->w_drawing_aera,
+            app_wdgts->tmp_w, app_wdgts->tmp_h);
+    app_wdgts->cr_action = 0;
+    gtk_widget_queue_draw(app_wdgts->w_drawing_aera);
+    update_info_zoom(app_wdgts);
+
+    // Display the resolution in the UI
+    asprintf(&app_wdgts->resolution_info, "%d x %d",
+            app_wdgts->tmp_w, app_wdgts->tmp_h);
+    gtk_label_set_text(GTK_LABEL(app_wdgts->w_info_resolution),
+            app_wdgts->resolution_info);
+
+    // empty the undo list
+    struct gdImage_list *tmp;
+
+    while(app_wdgts->gd_list != NULL)
+    {
+        tmp = app_wdgts->gd_list;
+        app_wdgts->gd_list = app_wdgts->gd_list->next;
+        free(tmp);
+    }      
+
+    app_wdgts->gd_list = malloc(sizeof(struct gdImage_list));
+    app_wdgts->gd_list->img = NULL;      
+
+    // Update preview
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
+                app_wdgts->w_check_none), TRUE);
+    update_all_prev(app_wdgts);
+
+    insert_gdImage_list(app_wdgts);
+    return 0;
+}
 //
 
 //// SignalCallbackFunctions
@@ -771,6 +939,8 @@ int on_menubar_open_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
                 GTK_FILE_CHOOSER(app_wdgts->w_dlg_file_choose));
         if (file_name != NULL) {
 
+            app_wdgts->save_path = file_name;
+
             // Create the pixbuf image to display
             app_wdgts->tmp_img = gdk_pixbuf_new_from_file(file_name, NULL);
 
@@ -782,107 +952,8 @@ int on_menubar_open_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
 
             app_wdgts->gd_img = gdImageCreateFromFile("cache/cp_img.png");
 
-            // Set sensitive to TRUE for all widgets
-            gtk_widget_set_sensitive(app_wdgts->w_scale_brightness, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_scale_contrast, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_scale_temperature, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_scale_noise, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_scale_sharpen, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_entry_brightness, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_entry_contrast, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_entry_noise, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_entry_sharpen, TRUE);           
-            gtk_widget_set_sensitive(app_wdgts->w_entry_temperature, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_check_none, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_check_oldschool, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_check_glowfilter,TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_check_redflagfilter, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_check_summertimefilter, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_check_vogue, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_check_winterfrost, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_check_timeoclockfilter, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_btn_crop, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_btn_resize, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_entryH_crop, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_entryW_crop, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_cb_brush, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_cb_thickness, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_btn_color, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_btn_fill, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_btn_text, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_btn_erase, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_btn_wipe, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_btn_circle, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_btn_pentagon, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_btn_square, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_btn_star, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_btn_heart, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, TRUE);
-            gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, TRUE);
-
-            GdkRGBA *color_set = malloc(sizeof(GdkRGBA));
-            color_set->red = 0.0;
-            color_set->green = 0.0;
-            color_set->blue = 0.0;
-            color_set->alpha = 1.0;            
-
-            gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(app_wdgts->w_btn_color), color_set); 
-            free(color_set);
-
-            // gets info of the image
-            int img_w = gdImageSX(app_wdgts->gd_img);
-            int img_h = gdImageSY(app_wdgts->gd_img);
-
-            gtk_spin_button_set_value(
-                    GTK_SPIN_BUTTON(app_wdgts->w_entryW_crop), img_w);
-            gtk_spin_button_set_value(
-                    GTK_SPIN_BUTTON(app_wdgts->w_entryH_crop), img_h);
-
-            app_wdgts->tmp_w = img_w;
-            app_wdgts->tmp_h = img_h;
-            app_wdgts->gd_w = img_w;
-            app_wdgts->gd_h = img_h;
-            app_wdgts->zoomed_w = img_w;
-            app_wdgts->zoomed_h = img_h;
-
-            init_color_array(app_wdgts);
-
-            // Redraw the drawing area to display the image in the UI
-            gtk_widget_set_size_request(app_wdgts->w_drawing_aera,
-                    app_wdgts->tmp_w, app_wdgts->tmp_h);
-            app_wdgts->cr_action = 0;
-            gtk_widget_queue_draw(app_wdgts->w_drawing_aera);
-            update_info_zoom(app_wdgts);
-
-            // Display the resolution in the UI
-            asprintf(&app_wdgts->resolution_info, "%d x %d",
-                    app_wdgts->tmp_w, app_wdgts->tmp_h);
-            gtk_label_set_text(GTK_LABEL(app_wdgts->w_info_resolution),
-                    app_wdgts->resolution_info);
-
-            // empty the undo list
-            struct gdImage_list *tmp;
-
-            while(app_wdgts->gd_list != NULL)
-            {
-                tmp = app_wdgts->gd_list;
-                app_wdgts->gd_list = app_wdgts->gd_list->next;
-                free(tmp);
-            }      
-
-            app_wdgts->gd_list = malloc(sizeof(struct gdImage_list));
-            app_wdgts->gd_list->img = NULL;      
-
-            // Update preview
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
-                        app_wdgts->w_check_none), TRUE);
-            update_all_prev(app_wdgts);
-
-            insert_gdImage_list(app_wdgts);
+            init_main_window(app_wdgts);
         }
-        g_free(file_name);
     }
 
     // Finished with the "Open Image" dialog box, so hide it
@@ -1031,6 +1102,44 @@ void on_menubar_quit_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
     gtk_main_quit();
 }
 
+int on_menubar_save_as_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(menuitem));
+    // Show the "Open Image" dialog box
+    gtk_widget_show(app_wdgts->w_dlg_file_save);
+
+    // Check return value from Open Image dialog box to 
+    // see if user clicked the Open button
+    if (gtk_dialog_run(
+                GTK_DIALOG (app_wdgts->w_dlg_file_save)) == GTK_RESPONSE_OK) {
+
+        // Get the file name from the dialog box
+        char *file_name = gtk_file_chooser_get_filename(
+                GTK_FILE_CHOOSER(app_wdgts->w_dlg_file_save));
+        if (file_name != NULL) {
+
+            app_wdgts->save_path = file_name;
+            app_wdgts->gd_out = fopen (file_name, "wb");
+            gdImagePng(app_wdgts->gd_img, app_wdgts->gd_out);
+            fclose(app_wdgts->gd_out);
+        }
+    }
+
+    // Finished with the "Open Image" dialog box, so hide it
+    gtk_widget_hide(app_wdgts->w_dlg_file_save);
+
+    return 0;
+}
+
+int on_menubar_save_activate(GtkMenuItem *menuitem, app_widgets *app_wdgts)
+{
+        printf("%ld\n", sizeof(menuitem));
+        app_wdgts->gd_out = fopen (app_wdgts->save_path, "wb");
+        gdImagePng(app_wdgts->gd_img, app_wdgts->gd_out);
+        fclose(app_wdgts->gd_out);
+        return 0;
+}
+
 void on_window_main_destroy()
 {
     system("rm -r -f cache/*");
@@ -1062,7 +1171,14 @@ int on_scale_zoom_value_changed(GtkMenuItem *menuitem, app_widgets *app_wdgts)
         app_wdgts->zoomed_h /= value;
     }
 
-    update_buffer(app_wdgts);
+    app_wdgts->tmp_img = gdk_pixbuf_new_from_file("cache/cp_img.png", NULL);
+    app_wdgts->tmp_img = gdk_pixbuf_scale_simple(app_wdgts->tmp_img,
+            app_wdgts->zoomed_w, app_wdgts->zoomed_h, GDK_INTERP_NEAREST);
+    gtk_widget_set_size_request(app_wdgts->w_drawing_aera,
+            app_wdgts->zoomed_w, app_wdgts->zoomed_h);
+    app_wdgts->cr_action = 0;
+    gtk_widget_queue_draw(app_wdgts->w_drawing_aera);
+
     update_info_zoom(app_wdgts);
 
     return 0;
@@ -1229,7 +1345,8 @@ int on_draw_event(GtkWidget *widget, cairo_t *cr, app_widgets *app_wdgts)
             gtk_widget_set_sensitive(app_wdgts->w_btn_crop, FALSE);
             gtk_widget_set_sensitive(app_wdgts->w_btn_resize, FALSE);
             gtk_widget_set_sensitive(app_wdgts->w_entry_rotation, FALSE);
-            gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, FALSE);
+            gtk_widget_set_sensitive(app_wdgts->w_scale_rotation, FALSE); 
+            gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, FALSE);
 
             gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
@@ -1534,6 +1651,7 @@ int on_scale_brightness_value_changed(GtkMenuItem *menuitem,
     gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     gtk_toggle_button_set_active(
@@ -1598,6 +1716,7 @@ int on_scale_contrast_value_changed(GtkMenuItem *menuitem,
     gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     gtk_toggle_button_set_active(
@@ -1663,6 +1782,7 @@ int on_scale_temperature_value_changed(GtkMenuItem *menuitem,
     gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     gtk_toggle_button_set_active(
@@ -1727,6 +1847,7 @@ int on_scale_noise_value_changed(GtkMenuItem *menuitem,
     gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     gtk_toggle_button_set_active(
@@ -1791,6 +1912,7 @@ int on_scale_sharpen_value_changed(GtkMenuItem *menuitem,
     gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, FALSE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_apply, TRUE);
 
     gtk_toggle_button_set_active(
@@ -1990,6 +2112,7 @@ int on_check_oldschool_toggled(GtkToggleButton *togglebutton,
         gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
                     app_wdgts->w_check_none), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
@@ -2055,6 +2178,7 @@ int on_check_summertimefilter_toggled(GtkToggleButton *togglebutton,
         gtk_widget_set_sensitive(app_wdgts->w_btn_heart, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
         gtk_toggle_button_set_active(
                 GTK_TOGGLE_BUTTON(app_wdgts->w_check_none), FALSE);
@@ -2122,6 +2246,7 @@ int on_check_glowfilter_toggled(GtkToggleButton *togglebutton,
         gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, FALSE);
         gtk_toggle_button_set_active(
                 GTK_TOGGLE_BUTTON(app_wdgts->w_check_none), FALSE);
         gtk_toggle_button_set_active(
@@ -2187,6 +2312,7 @@ int on_check_redflagfilter_toggled(GtkToggleButton *togglebutton,
         gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
                     app_wdgts->w_check_none), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
@@ -2253,6 +2379,7 @@ int on_check_vogue_toggled(GtkToggleButton *togglebutton,
         gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
                     app_wdgts->w_check_none), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
@@ -2319,6 +2446,7 @@ int on_check_winterfrost_toggled(GtkToggleButton *togglebutton,
         gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
                     app_wdgts->w_check_none), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
@@ -2385,6 +2513,7 @@ int on_check_timeoclock_toggled(GtkToggleButton *togglebutton,
         gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, FALSE);
         gtk_widget_set_sensitive(app_wdgts->w_btn_erase, FALSE);
+        gtk_widget_set_sensitive(app_wdgts->w_scale_zoom, FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
                     app_wdgts->w_check_none), FALSE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
@@ -2426,6 +2555,260 @@ int on_check_timeoclock_toggled(GtkToggleButton *togglebutton,
 #pragma  endregion ImageProcessing
 
 #pragma  region OthersFunctions
+
+//// Functions
+int init_collage_interface(app_widgets *app_wdgts)
+{       
+    GtkWidget *prev_list[] = {
+        app_wdgts->w_prev_img1,
+        app_wdgts->w_prev_img2,
+        app_wdgts->w_prev_img3,
+        app_wdgts->w_prev_img4,
+    };
+
+    for(int i = 0; i < 4; i++)
+    {
+        gtk_image_set_from_icon_name(GTK_IMAGE(prev_list[i]), "unknown", GTK_ICON_SIZE_INVALID);
+    }
+
+    gtk_image_set_from_icon_name(GTK_IMAGE(app_wdgts->w_prev_final), "unknown", GTK_ICON_SIZE_INVALID);
+
+    gtk_widget_set_sensitive(app_wdgts->w_btn_collage_delete1, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_collage_delete2, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_collage_delete3, FALSE);
+    gtk_widget_set_sensitive(app_wdgts->w_btn_collage_delete4, FALSE);
+    
+
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
+                app_wdgts->w_check_preset1), FALSE);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
+                app_wdgts->w_check_preset2), FALSE);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
+                app_wdgts->w_check_preset3), FALSE);
+
+    app_wdgts->img1_path = "";
+    app_wdgts->img2_path = "";
+    app_wdgts->img3_path = "";
+    app_wdgts->img4_path = "";
+
+    app_wdgts->img_count = 0;
+
+    return 0;
+}
+
+int update_all_presets(app_widgets *app_wdgts, int img_count)
+{
+    float coef = 5.125;
+
+    char* two_list[] = {
+        "src/resources/func_divers/2_pic_collage_1.png",
+        "src/resources/func_divers/2_pic_collage_2.png",
+    };
+
+    char* three_list[] = {        
+        "src/resources/func_divers/3_pic_collage_1.png",
+        "src/resources/func_divers/3_pic_collage_2.png",
+        "src/resources/func_divers/3_pic_collage_3.png",
+    };
+
+    char* four_list[] = {        
+        "src/resources/func_divers/4_pic_collage_1.png",
+        "src/resources/func_divers/4_pic_collage_2.png",
+        "src/resources/func_divers/4_pic_collage_3.png",
+    };
+
+    GtkWidget* prev_list[] = {
+        app_wdgts->w_prev_preset1,
+        app_wdgts->w_prev_preset2,
+        app_wdgts->w_prev_preset3,
+    };
+
+    GtkWidget* check_list[] = {
+        app_wdgts->w_check_preset1,
+        app_wdgts->w_check_preset2,
+        app_wdgts->w_check_preset3,
+    };
+
+    for(int i = 0; i < 3; i++)
+    {
+        gtk_image_set_from_icon_name(GTK_IMAGE(prev_list[i]), "unknown", GTK_ICON_SIZE_INVALID);
+        gtk_widget_set_sensitive(check_list[i], FALSE);
+    }
+
+    GdkPixbuf *prev;
+    if (img_count > 1){
+        for (int i = 0; i < img_count; i++)
+        {
+            if(i < 3){
+                if(img_count == 2)
+                    prev = gdk_pixbuf_new_from_file(two_list[i], NULL);
+                else if(img_count == 3)
+                    prev = gdk_pixbuf_new_from_file(three_list[i], NULL);
+                else
+                    prev = gdk_pixbuf_new_from_file(four_list[i], NULL);
+
+                prev = gdk_pixbuf_scale_simple(prev, gdk_pixbuf_get_width(prev)/coef,
+                        gdk_pixbuf_get_height(prev)/coef, GDK_INTERP_NEAREST);
+                gtk_image_set_from_pixbuf(GTK_IMAGE(prev_list[i]), prev);
+                gtk_widget_set_sensitive(check_list[i], TRUE);
+            }
+        }
+    }
+
+    return 0;
+}
+
+int run_dialog_menu(app_widgets *app_wdgts, GtkWidget *prev_img, int image_number)
+{
+    // Check return value from Open Image dialog box to 
+    // see if user clicked the Open button
+    if (gtk_dialog_run(
+                GTK_DIALOG (app_wdgts->w_dlg_file_choose)) == GTK_RESPONSE_OK) {
+
+        // Get the file name from the dialog box
+        char *file_name = gtk_file_chooser_get_filename(
+                GTK_FILE_CHOOSER(app_wdgts->w_dlg_file_choose));
+        if (file_name != NULL) {
+
+            switch (image_number)
+            {
+                case 1:
+
+                    if(strlen(app_wdgts->img1_path) == 0){
+                        app_wdgts->img1_path = file_name;
+                        gtk_widget_set_sensitive(app_wdgts->w_btn_collage_delete1, TRUE);
+                        if(app_wdgts->img_count < 4)
+                                app_wdgts->img_count += 1;
+                    }
+                    else{
+                        app_wdgts->img1_path = file_name;
+                    }
+                    break;
+
+                case 2:
+                    
+                    if(strlen(app_wdgts->img2_path) == 0){
+                        app_wdgts->img2_path = file_name;
+                        gtk_widget_set_sensitive(app_wdgts->w_btn_collage_delete1, TRUE);
+                        if(app_wdgts->img_count < 4)
+                                app_wdgts->img_count += 1;
+                    }
+                    else{
+                        app_wdgts->img2_path = file_name;
+                    }                    
+                    break;
+
+                case 3:
+
+                    if(strlen(app_wdgts->img3_path) == 0){
+                        app_wdgts->img3_path = file_name;
+                        gtk_widget_set_sensitive(app_wdgts->w_btn_collage_delete1, TRUE);
+                        if(app_wdgts->img_count < 4)
+                                app_wdgts->img_count += 1;
+                    }
+                    else{
+                        app_wdgts->img3_path = file_name;
+                    }
+                    break;
+
+                case 4:
+
+                    if(strlen(app_wdgts->img4_path) == 0){
+                        app_wdgts->img4_path = file_name;
+                        gtk_widget_set_sensitive(app_wdgts->w_btn_collage_delete1, TRUE);
+                        if(app_wdgts->img_count < 4)
+                                app_wdgts->img_count += 1;
+                    }
+                    else{
+                        app_wdgts->img4_path = file_name;
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+
+            GdkPixbuf *prev =
+                gdk_pixbuf_new_from_file(
+                        file_name, 
+                        NULL
+                        );
+
+            int img_w = gdk_pixbuf_get_width(prev);
+            int img_h = gdk_pixbuf_get_height(prev);
+
+            int coef, width, height;  
+            if(img_w > img_h)
+            {
+                coef = img_w / 250;
+                width = img_w / coef;
+                height = img_h / coef;
+            }
+            else
+            {
+                coef = img_h / 200;
+                width = img_w / coef;
+                height = img_h / coef;
+            }
+
+            prev = gdk_pixbuf_scale_simple(prev,
+                    width,
+                    height,
+                    GDK_INTERP_NEAREST
+                    );
+
+            gtk_image_set_from_pixbuf(
+                    GTK_IMAGE(prev_img), 
+                    prev
+                    );
+
+            update_all_presets(app_wdgts, app_wdgts->img_count);
+        }
+    }
+
+    // Finished with the "Open Image" dialog box, so hide it
+    gtk_widget_hide(app_wdgts->w_dlg_file_choose);
+
+    return 0;
+}
+
+int update_prev_final(app_widgets *app_wdgts)
+{
+    float coef = 3.15;
+    GdkPixbuf *prev = gdk_pixbuf_new_from_file("cache/preset_tmp.png", NULL);
+    prev = gdk_pixbuf_scale_simple(prev, gdk_pixbuf_get_width(prev)/coef,
+            gdk_pixbuf_get_height(prev)/coef, GDK_INTERP_NEAREST);
+    gtk_image_set_from_pixbuf(GTK_IMAGE(app_wdgts->w_prev_final), prev);
+
+    return 0;
+}
+
+int set_collage_background_color(int r, int g, int b){
+
+        gdImagePtr im = 
+                gdImageCreateFromFile("src/resources/func_divers/background.png");
+        
+        FILE *out = fopen("cache/background.png", "wb");
+
+        int color_dst = gdImageColorAllocate(im, r, g, b);
+        int witdh = gdImageSX(im);
+        int height = gdImageSY(im);
+
+        for(int x = 0; x < witdh; x++){
+                for(int y = 0; y < height; y++)
+                {
+                        gdImageSetPixel(im, x, y, color_dst);
+                }
+        }
+
+        gdImagePng(im, out);
+
+        fclose(out);
+
+        return 0;
+}
+///
+//
 
 //// CallbackFunctions
 //
@@ -2617,29 +3000,6 @@ int on_btn_text_focus_out_event(GtkWidget *text_button, GdkEventButton *event,
     return 0;
 }
 
-int on_btn_collage_activate(GtkWidget *btn_collage,
-        app_widgets *app_wdgts)
-{
-    gtk_widget_show(app_wdgts->w_window_collage);
-    return 0;
-}
-
-int on_collage_btn_cancel_clicked(GtkWidget *btn_collage_cancel,
-        app_widgets *app_wdgts)
-{
-    printf("%ld\n", sizeof(btn_collage_cancel));
-    gtk_widget_hide(app_wdgts->w_window_collage);
-    return 0;
-}
-
-int on_collage_btn_apply_clicked(GtkWidget *btn_collage_apply,
-        app_widgets *app_wdgts)
-{
-    printf("%ld\n", sizeof(btn_collage_apply));
-    gtk_widget_hide(app_wdgts->w_window_collage);
-    return 0;
-}
-
 int on_btn_circle_focus_in_event(GtkWidget *btn_fill, GdkEventMotion *event,
         app_widgets *app_wdgts)
 {
@@ -2766,60 +3126,49 @@ int on_btn_heart_focus_out_event(GtkWidget *btn_fill, GdkEventMotion *event,
     return 0;
 }
 
+int on_btn_collage_activate(GtkWidget *btn_collage,
+        app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(btn_collage));
+    init_collage_interface(app_wdgts);
+    update_all_presets(app_wdgts, app_wdgts->img_count);
+    set_collage_background_color(255, 255, 255);
+    gtk_widget_show(app_wdgts->w_window_collage);
+    return 0;
+}
+
+int on_collage_btn_apply_clicked(GtkWidget *btn_collage_apply,
+        app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(btn_collage_apply));
+    // Create the pixbuf image to display
+    app_wdgts->tmp_img = gdk_pixbuf_new_from_file("cache/preset_tmp.png", NULL);
+
+    // Save copies of the original files
+    gdk_pixbuf_savev(
+            app_wdgts->tmp_img, "cache/cp_img.png", "png", NULL, NULL, NULL);
+    gdk_pixbuf_savev(
+            app_wdgts->tmp_img, "cache/temp_img.png", "png", NULL, NULL, NULL);
+
+    app_wdgts->gd_img = gdImageCreateFromFile("cache/cp_img.png");
+    init_main_window(app_wdgts);
+    gtk_widget_hide(app_wdgts->w_window_collage);
+    return 0;
+}
+
+int on_collage_btn_cancel_clicked(GtkWidget *btn_collage_cancel,
+        app_widgets *app_wdgts)
+{
+    printf("%ld\n", sizeof(btn_collage_cancel));
+    gtk_widget_hide(app_wdgts->w_window_collage);
+    return 0;
+}
+
 int on_btn_collage_img1_clicked(GtkWidget *btn_img1, app_widgets *app_wdgts){
     printf("%ld\n", sizeof(btn_img1));
     // Show the "Open Image" dialog box
     gtk_widget_show(app_wdgts->w_dlg_file_choose);
-
-    // Check return value from Open Image dialog box to 
-    // see if user clicked the Open button
-    if (gtk_dialog_run(
-                GTK_DIALOG (app_wdgts->w_dlg_file_choose)) == GTK_RESPONSE_OK) {
-
-        // Get the file name from the dialog box
-        char *file_name = gtk_file_chooser_get_filename(
-                GTK_FILE_CHOOSER(app_wdgts->w_dlg_file_choose));
-        if (file_name != NULL) {
-        
-           GdkPixbuf *prev =
-                gdk_pixbuf_new_from_file(
-                        file_name, 
-                        NULL
-                        );
-           
-           int img_w = gdk_pixbuf_get_width(prev);
-           int img_h = gdk_pixbuf_get_height(prev);
-
-           int coef, width, height;  
-           if(img_w > img_h)
-           {
-                coef = img_w / 250;
-                width = img_w / coef;
-                height = img_h / coef;
-           }
-           else
-           {
-                coef = img_h / 200;
-                width = img_w / coef;
-                height = img_h / coef;
-           }
-
-            prev = gdk_pixbuf_scale_simple(prev,
-                    width,
-                    height,
-                    GDK_INTERP_NEAREST
-                    );
-
-            gtk_image_set_from_pixbuf(
-                    GTK_IMAGE(app_wdgts->w_prev_img1), 
-                    prev
-                    );
-        }
-        g_free(file_name);
-    }
-
-    // Finished with the "Open Image" dialog box, so hide it
-    gtk_widget_hide(app_wdgts->w_dlg_file_choose);
+    run_dialog_menu(app_wdgts, app_wdgts->w_prev_img1, 1);\
     return 0;
 }
 
@@ -2827,56 +3176,7 @@ int on_btn_collage_img2_clicked(GtkWidget *btn_img1, app_widgets *app_wdgts){
     printf("%ld\n", sizeof(btn_img1));
     // Show the "Open Image" dialog box
     gtk_widget_show(app_wdgts->w_dlg_file_choose);
-
-    // Check return value from Open Image dialog box to 
-    // see if user clicked the Open button
-    if (gtk_dialog_run(
-                GTK_DIALOG (app_wdgts->w_dlg_file_choose)) == GTK_RESPONSE_OK) {
-
-        // Get the file name from the dialog box
-        char *file_name = gtk_file_chooser_get_filename(
-                GTK_FILE_CHOOSER(app_wdgts->w_dlg_file_choose));
-        if (file_name != NULL) {
-        
-           GdkPixbuf *prev =
-                gdk_pixbuf_new_from_file(
-                        file_name, 
-                        NULL
-                        );
-           
-           int img_w = gdk_pixbuf_get_width(prev);
-           int img_h = gdk_pixbuf_get_height(prev);
-
-           int coef, width, height;  
-           if(img_w > img_h)
-           {
-                coef = img_w / 250;
-                width = img_w / coef;
-                height = img_h / coef;
-           }
-           else
-           {
-                coef = img_h / 200;
-                width = img_w / coef;
-                height = img_h / coef;
-           }
-
-            prev = gdk_pixbuf_scale_simple(prev,
-                    width,
-                    height,
-                    GDK_INTERP_NEAREST
-                    );
-
-            gtk_image_set_from_pixbuf(
-                    GTK_IMAGE(app_wdgts->w_prev_img2), 
-                    prev
-                    );
-        }
-        g_free(file_name);
-    }
-
-    // Finished with the "Open Image" dialog box, so hide it
-    gtk_widget_hide(app_wdgts->w_dlg_file_choose);
+    run_dialog_menu(app_wdgts, app_wdgts->w_prev_img2, 2);
     return 0;
 }
 
@@ -2884,114 +3184,218 @@ int on_btn_collage_img3_clicked(GtkWidget *btn_img1, app_widgets *app_wdgts){
     printf("%ld\n", sizeof(btn_img1));
     // Show the "Open Image" dialog box
     gtk_widget_show(app_wdgts->w_dlg_file_choose);
-
-    // Check return value from Open Image dialog box to 
-    // see if user clicked the Open button
-    if (gtk_dialog_run(
-                GTK_DIALOG (app_wdgts->w_dlg_file_choose)) == GTK_RESPONSE_OK) {
-
-        // Get the file name from the dialog box
-        char *file_name = gtk_file_chooser_get_filename(
-                GTK_FILE_CHOOSER(app_wdgts->w_dlg_file_choose));
-        if (file_name != NULL) {
-        
-           GdkPixbuf *prev =
-                gdk_pixbuf_new_from_file(
-                        file_name, 
-                        NULL
-                        );
-           
-           int img_w = gdk_pixbuf_get_width(prev);
-           int img_h = gdk_pixbuf_get_height(prev);
-
-           int coef, width, height;  
-           if(img_w > img_h)
-           {
-                coef = img_w / 250;
-                width = img_w / coef;
-                height = img_h / coef;
-           }
-           else
-           {
-                coef = img_h / 200;
-                width = img_w / coef;
-                height = img_h / coef;
-           }
-
-            prev = gdk_pixbuf_scale_simple(prev,
-                    width,
-                    height,
-                    GDK_INTERP_NEAREST
-                    );
-
-            gtk_image_set_from_pixbuf(
-                    GTK_IMAGE(app_wdgts->w_prev_img3), 
-                    prev
-                    );
-        }
-        g_free(file_name);
-    }
-
-    // Finished with the "Open Image" dialog box, so hide it
-    gtk_widget_hide(app_wdgts->w_dlg_file_choose);
+    run_dialog_menu(app_wdgts, app_wdgts->w_prev_img3, 3);
     return 0;
 }
 
-int on_btn_collage_img4_clicked(GtkWidget *btn_img1, app_widgets *app_wdgts){
-    printf("%ld\n", sizeof(btn_img1));
+int on_btn_collage_img4_clicked(GtkWidget *btn_img4, app_widgets *app_wdgts){
+    printf("%ld\n", sizeof(btn_img4));
     // Show the "Open Image" dialog box
     gtk_widget_show(app_wdgts->w_dlg_file_choose);
+    run_dialog_menu(app_wdgts, app_wdgts->w_prev_img4, 4);
+    return 0;
+}
 
-    // Check return value from Open Image dialog box to 
-    // see if user clicked the Open button
-    if (gtk_dialog_run(
-                GTK_DIALOG (app_wdgts->w_dlg_file_choose)) == GTK_RESPONSE_OK) {
+int on_check_preset1_toggled(GtkWidget *btn_preset1, app_widgets *app_wdgts){
 
-        // Get the file name from the dialog box
-        char *file_name = gtk_file_chooser_get_filename(
-                GTK_FILE_CHOOSER(app_wdgts->w_dlg_file_choose));
-        if (file_name != NULL) {
-        
-           GdkPixbuf *prev =
-                gdk_pixbuf_new_from_file(
-                        file_name, 
-                        NULL
-                        );
-           
-           int img_w = gdk_pixbuf_get_width(prev);
-           int img_h = gdk_pixbuf_get_height(prev);
+    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(
+                    btn_preset1)))
+    {
+        char* paths_list[] = { 
+                app_wdgts->img1_path, 
+                app_wdgts->img2_path, 
+                app_wdgts->img3_path,
+                app_wdgts->img4_path
+        };
 
-           int coef, width, height;  
-           if(img_w > img_h)
-           {
-                coef = img_w / 250;
-                width = img_w / coef;
-                height = img_h / coef;
-           }
-           else
-           {
-                coef = img_h / 200;
-                width = img_w / coef;
-                height = img_h / coef;
-           }
+        char* avail_paths[4]; 
+        int n = 0;
 
-            prev = gdk_pixbuf_scale_simple(prev,
-                    width,
-                    height,
-                    GDK_INTERP_NEAREST
-                    );
-
-            gtk_image_set_from_pixbuf(
-                    GTK_IMAGE(app_wdgts->w_prev_img4), 
-                    prev
-                    );
+        for(int i = 0; i < 4; i++)
+        {
+                if (strlen(paths_list[i]) > 0){
+                       avail_paths[n] = paths_list[i];
+                       n += 1;
+                }
         }
-        g_free(file_name);
+        
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
+                    app_wdgts->w_check_preset2), FALSE);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
+                    app_wdgts->w_check_preset3), FALSE);
+
+        switch (app_wdgts->img_count)
+        {
+            case 2:
+                collage("cache/background.png", avail_paths[0], 
+                        avail_paths[1], "", "", "cache/preset_tmp.png");
+                break;
+            case 3:
+                collage("cache/background.png", avail_paths[0], 
+                        avail_paths[1], avail_paths[2], "", "cache/preset_tmp.png");
+                break;
+            case 4:
+                collage("cache/background.png", avail_paths[0], 
+                        avail_paths[1], avail_paths[2], avail_paths[3], "cache/preset_tmp.png");
+                break;
+            default:
+                break;
+        }
+
+        update_prev_final(app_wdgts);
     }
 
-    // Finished with the "Open Image" dialog box, so hide it
-    gtk_widget_hide(app_wdgts->w_dlg_file_choose);
     return 0;
+}
+
+int on_check_preset2_toggled(GtkWidget *btn_preset2, app_widgets *app_wdgts){
+
+    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(
+                    btn_preset2)))
+    {
+        char* paths_list[] = { 
+                app_wdgts->img1_path, 
+                app_wdgts->img2_path, 
+                app_wdgts->img3_path,
+                app_wdgts->img4_path
+        };
+
+        char* avail_paths[4]; 
+        int n = 0;
+
+        for(int i = 0; i < 4; i++)
+        {
+                if (strlen(paths_list[i]) > 0){
+                       avail_paths[n] = paths_list[i];
+                       n += 1;
+                }
+        }
+
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
+                    app_wdgts->w_check_preset1), FALSE);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
+                    app_wdgts->w_check_preset3), FALSE);
+
+        switch (app_wdgts->img_count)
+        {
+            case 2:
+                collage_2("cache/background.png", avail_paths[0], 
+                        avail_paths[1], "", "", "cache/preset_tmp.png");
+                break;
+            case 3:
+                collage_2("cache/background.png", avail_paths[0], 
+                        avail_paths[1], avail_paths[2], "", "cache/preset_tmp.png");
+                break;
+            case 4:
+                collage_2("cache/background.png", avail_paths[0], 
+                        avail_paths[1], avail_paths[2], avail_paths[3], "cache/preset_tmp.png");
+                break;
+            default:
+                break;
+        }
+
+        update_prev_final(app_wdgts);
+    }
+    return 0;
+}
+
+int on_check_preset3_toggled(GtkWidget *btn_preset3, app_widgets *app_wdgts){
+
+    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(
+                    btn_preset3)))
+    {
+        char* paths_list[] = { 
+                app_wdgts->img1_path, 
+                app_wdgts->img2_path, 
+                app_wdgts->img3_path,
+                app_wdgts->img4_path
+        };
+
+        char* avail_paths[4]; 
+        int n = 0;
+
+        for(int i = 0; i < 4; i++)
+        {
+                if (strlen(paths_list[i]) > 0){
+                       avail_paths[n] = paths_list[i];
+                       n += 1;
+                }
+        }
+
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
+                    app_wdgts->w_check_preset2), FALSE);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
+                    app_wdgts->w_check_preset1), FALSE);
+
+        switch (app_wdgts->img_count)
+        {
+            case 3:
+                collage_4("cache/background.png", avail_paths[0], 
+                        avail_paths[1], avail_paths[2], "cache/preset_tmp.png");
+                break;
+            case 4:
+                collage_3("cache/background.png", avail_paths[0], 
+                        avail_paths[1], avail_paths[2], avail_paths[3], "cache/preset_tmp.png");
+                break;
+            default:
+                break;
+        }
+
+        update_prev_final(app_wdgts);
+    }
+
+    return 0;
+}
+
+int on_btn_collage_delete1_clicked(GtkWidget *btn_collage_delete, app_widgets *app_wdgts)
+{
+        gtk_image_set_from_icon_name(GTK_IMAGE(app_wdgts->w_prev_img1), "unknown", GTK_ICON_SIZE_INVALID);
+        app_wdgts->img1_path = "";
+        app_wdgts->img_count -= 1;
+        update_all_presets(app_wdgts, app_wdgts->img_count);
+        gtk_widget_set_sensitive(btn_collage_delete, FALSE);
+        return 0;
+}
+
+int on_btn_collage_delete2_clicked(GtkWidget *btn_collage_delete, app_widgets *app_wdgts)
+{
+        gtk_image_set_from_icon_name(GTK_IMAGE(app_wdgts->w_prev_img2), "unknown", GTK_ICON_SIZE_INVALID);
+        app_wdgts->img2_path = "";
+        app_wdgts->img_count -= 1;
+        update_all_presets(app_wdgts, app_wdgts->img_count);
+        gtk_widget_set_sensitive(btn_collage_delete, FALSE);
+        return 0;
+}
+
+int on_btn_collage_delete3_clicked(GtkWidget *btn_collage_delete, app_widgets *app_wdgts)
+{
+        gtk_image_set_from_icon_name(GTK_IMAGE(app_wdgts->w_prev_img3), "unknown", GTK_ICON_SIZE_INVALID);
+        app_wdgts->img3_path = "";
+        app_wdgts->img_count -= 1;
+        update_all_presets(app_wdgts, app_wdgts->img_count);
+        gtk_widget_set_sensitive(btn_collage_delete, FALSE);
+        return 0;
+}
+
+int on_btn_collage_delete4_clicked(GtkWidget *btn_collage_delete, app_widgets *app_wdgts)
+{
+        gtk_image_set_from_icon_name(GTK_IMAGE(app_wdgts->w_prev_img4), "unknown", GTK_ICON_SIZE_INVALID);
+        app_wdgts->img4_path = "";
+        app_wdgts->img_count -= 1;
+        update_all_presets(app_wdgts, app_wdgts->img_count);
+        gtk_widget_set_sensitive(btn_collage_delete, FALSE);
+        return 0;
+}
+
+int on_btn_collage_color_color_set(GtkWidget *btn_collage_color)
+{
+
+        GdkRGBA *color_set = malloc(sizeof(GdkRGBA));
+        gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(btn_collage_color), color_set);
+
+        set_collage_background_color(color_set->red * 255, color_set->green * 255, color_set->blue * 255);
+
+        return 0;
 }
 //
 ////

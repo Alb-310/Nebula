@@ -16,13 +16,22 @@ void picture_insertion(gdImagePtr src, FILE *out, gdImagePtr dst, char *path, in
 
 void add_motif(gdImagePtr dst, FILE *out, char* path, char *motif,int dst_x,int dst_y,float src_dim_percent);
 
-void collage(char*filename_background,char *filename_first_picture,char *filename_second_picture,char *filename_third_picture,char *filename_fourth_picture);
+void collage(char*filename_background, 
+             char *filename_first_picture, char *filename_second_picture,
+             char *filename_third_picture,char *filename_fourth_picture,
+             char *dst_path);
 
-void collage_2(char*filename_background,char *filename_first_picture,char *filename_second_picture,char *filename_third_picture,char *filename_fourth_picture);
+void collage_2(char*filename_background, char *filename_first_picture, 
+               char *filename_second_picture, char *filename_third_picture,
+               char *filename_fourth_picture, char *dst_path);
 
-void collage_3(char*filename_background,char *filename_first_picture,char *filename_second_picture,char *filename_third_picture,char *filename_fourth_picture);
+void collage_3(char*filename_background, char *filename_first_picture,
+               char *filename_second_picture, char *filename_third_picture,
+               char *filename_fourth_picture, char *dst_path);
 
-void collage_4(char *filename_background,char *filename_first_picture,char *filename_second_picture,char *filename_third_picture);
+void collage_4(char *filename_background, char *filename_first_picture, 
+               char *filename_second_picture, char *filename_third_picture,
+               char *dst_path);
 
 #endif
 
