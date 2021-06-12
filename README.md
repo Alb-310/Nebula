@@ -33,7 +33,7 @@
 
 ### Installation:
 
-#### Make sure you have installed the `Prerequisites`
+#### Make sure you have installed the **Prerequisites**
 - *`sudo apt-get update`*
 - *`sudo apt-get install -y libgtk-3-dev libgd-dev`*
 
