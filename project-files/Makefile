@@ -23,6 +23,7 @@ LDFLAGS=$(PTHREAD) $(GDLIB) $(GTKLIB) -export-dynamic -rdynamic -lm
 
 OBJS=    src/.o/main.o src/.o/filters.o src/.o/image_settings.o src/.o/drawing.o src/.o/func_divers.o src/.o/queue.o src/.o/shared_queue.o
 
+
 all: $(OBJS)
 	$(LD) -o $(TARGET) $(OBJS) $(LDFLAGS)
 src/.o/main.o: src/main.c
