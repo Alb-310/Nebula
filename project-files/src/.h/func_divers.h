@@ -10,11 +10,28 @@ void Rotate(gdImagePtr im, FILE *out, char *path,int angle);
 
 void Add_text(gdImagePtr im, FILE *out, char *path, char *font, int x,
                 int y, int width, int height, int color, double size,
-                        double angle, char* text);
+                        double angle, const char* text);
 
 void picture_insertion(gdImagePtr src, FILE *out, gdImagePtr dst, char *path, int dst_x,int dst_y, float src_dim_percent);
 
 void add_motif(gdImagePtr dst, FILE *out, char* path, char *motif,int dst_x,int dst_y,float src_dim_percent);
+
+void collage(char*filename_background, 
+             char *filename_first_picture, char *filename_second_picture,
+             char *filename_third_picture,char *filename_fourth_picture,
+             char *dst_path);
+
+void collage_2(char*filename_background, char *filename_first_picture, 
+               char *filename_second_picture, char *filename_third_picture,
+               char *filename_fourth_picture, char *dst_path);
+
+void collage_3(char*filename_background, char *filename_first_picture,
+               char *filename_second_picture, char *filename_third_picture,
+               char *filename_fourth_picture, char *dst_path);
+
+void collage_4(char *filename_background, char *filename_first_picture, 
+               char *filename_second_picture, char *filename_third_picture,
+               char *dst_path);
 
 #endif
 

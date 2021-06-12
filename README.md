@@ -1,4 +1,4 @@
-# S4 Project
+# S4 Project - EPITA
 
 ## Orion Nebula
 
@@ -17,28 +17,28 @@
 ### Nebula-S4
 
 #### The directory `project-files` contains all the folders and files necessary for the correct functioning of the software:
-- `cache/`: contains temporary files stored by the software
-- `src/`: contains source codes of the sofware
-- `Makefile`: provided to build the software easely
+- `cache/`: Contains temporary files stored by the software.
+- `src/`: Contains source codes of the sofware.
+- `Makefile`: Provided to build the software easely.
 
-#### The directory `resources` contains files for the presentations
+#### The directory `resources` contains files for the presentations.
 
-#### The directory `test-files` contains files examples for the software
+#### The directory `test-files` contains files examples for the software.
 
 ## Manual
 
-### Prerequisite:
-- GTK: https://www.gtk.org/
-- LibGD: https://libgd.github.io/
+### Prerequisites:
+- GTK: https://www.gtk.org/ (*`sudo apt-get install -y libgtk-3-dev`*)
+- LibGD: https://libgd.github.io/ (*`sudo apt-get install -y libgd-dev`*)
 
 ### Installation:
 
 #### Go to `Nebula-S4/project-files/`
-- Inside the `Nebula-S4/` directory, you can use the command: *`cd project-files`*
+- Inside the `Nebula-S4/` directory, you can use the command: *`cd project-files`*.
 
 #### Compile the code by using the `Makefile`
-- You can use the command: *`make`* to do so
+- You can use the command: *`make`* to do so.
 
 #### Run the application
-- You can use the command: *`./nebula`* to do so
+- You can use the command: *`./nebula`* to do so.
 
