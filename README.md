@@ -28,10 +28,14 @@
 ## Manual
 
 ### Prerequisites:
-- GTK: https://www.gtk.org/
-- LibGD: https://libgd.github.io/
+- GTK: https://www.gtk.org/ (*`sudo apt-get install -y libgtk-3-dev`*)
+- LibGD: https://libgd.github.io/ (*`sudo apt-get install -y libgd-dev`*)
 
 ### Installation:
+
+#### Make sure you have installed the `Prerequisites`
+- *`sudo apt-get update`*
+- *`sudo apt-get install -y libgtk-3-dev libgd-dev`*
 
 #### Go to `Nebula-S4/project-files/`
 - Inside the `Nebula-S4/` directory, you can use the command: *`cd project-files`*.
