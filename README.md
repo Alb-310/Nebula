@@ -28,8 +28,8 @@
 ## Manual
 
 ### Prerequisites:
-- GTK: https://www.gtk.org/ (*`sudo apt-get install -y libgtk-3-dev`*)
-- LibGD: https://libgd.github.io/ (*`sudo apt-get install -y libgd-dev`*)
+- GTK: https://www.gtk.org/
+- LibGD: https://libgd.github.io/
 
 ### Installation:
 
