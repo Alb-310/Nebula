@@ -42,7 +42,7 @@ void Rotate(gdImagePtr im, FILE *out, char *path,int angle)
 
 void Add_text(gdImagePtr im, FILE *out, char *path, char *font, int x,
                 int y, int width, int height, int color, double size,
-                        double angle, char* text)
+                        double angle, const char* text)
 {
 	out = fopen(path,"wb");
 	int *brect = malloc(8*sizeof(int));
