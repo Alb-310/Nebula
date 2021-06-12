@@ -21,7 +21,8 @@ GDLIB= -lgd -lpng -lz -ljpeg -lfreetype -lm
 LD=gcc
 LDFLAGS=$(PTHREAD) $(GDLIB) $(GTKLIB) -export-dynamic -rdynamic -lm
 
-OBJS=    src/.o/main.o src/.o/filters.o src/.o/image_settings.o src/.o/drawing.o src/.o/func_divers.o
+OBJS=    src/.o/main.o src/.o/filters.o src/.o/image_settings.o src/.o/drawing.o src/.o/func_divers.o src/.o/queue.o src/.o/shared_queue.o
+
 
 all: $(OBJS)
 	$(LD) -o $(TARGET) $(OBJS) $(LDFLAGS)
@@ -35,5 +36,9 @@ src/.o/drawing.o: src/drawing.c
 	$(CC) -c $(CCFLAGS) src/drawing.c $(GDLIB) $(GTKLIB) -o src/.o/drawing.o
 src/.o/func_divers.o: src/func_divers.c
 	$(CC) -c $(CCFLAGS) src/func_divers.c $(GDLIB) $(GTKLIB) -o src/.o/func_divers.o
+src/.o/queue.o: src/queue.c
+	$(CC) -c $(CCFLAGS) src/queue.c $(GDLIB) $(GTKLIB) -o src/.o/queue.o
+src/.o/shared_queue.o: src/shared_queue.c
+	$(CC) -c $(CCFLAGS) src/shared_queue.c $(GDLIB) $(GTKLIB) -o src/.o/shared_queue.o
 clean:
 	rm -f src/.o/*.o $(TARGET) -r cache/*
