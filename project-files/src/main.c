@@ -5,7 +5,7 @@
  * Description: Orion Nebula is a raster graphics editor.
  */
 
-#pragma  region Include
+//#pragma  region Include
 
 #define _GNU_SOURCE
 #define CTRL_KEYPRESS(k) ((k)  & 0x1f) 
@@ -33,9 +33,9 @@
 #include ".h/drawing.h"
 #include ".h/func_divers.h"
 
-#pragma  endregion Include
+//#pragma  endregion Include
 
-#pragma  region Structure
+//#pragma  region Structure
 
 struct Point {
     int x;
@@ -215,9 +215,9 @@ typedef struct {
 
 } app_widgets;
 
-#pragma  endregion Structure
+//#pragma  endregion Structure
 
-#pragma  region Main
+//#pragma  region Main
 
 struct Point *p1, *p2, *start, *start2;
 
@@ -593,9 +593,9 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-#pragma  endregion Main
+//#pragma  endregion Main
 
-#pragma  region Utils
+//#pragma  region Utils
 
 //// Functions
 //
@@ -641,9 +641,9 @@ int free_point_struct(struct Point *head){
 //
 ////
 
-#pragma  endregion Utils
+//#pragma  endregion Utils
 
-#pragma  region Interface
+//#pragma  region Interface
 
 //// Functions
 int init_pop_up_text(app_widgets *app_wdgts)
@@ -1291,13 +1291,6 @@ int on_btn_undo_activate(GtkWidget *menuitem, app_widgets *app_wdgts)
     return 0;
 }
 
-int on_btn_redo_activate(GtkWidget *menuitem, app_widgets *app_wdgts)
-{
-    printf("%ld\n", sizeof(menuitem));
-    printf("%ld\n", sizeof(app_wdgts));
-    return 0;
-}
-
 int on_btn_help_activate(GtkWidget *menuitem)
 {
         printf("%ld\n", sizeof(menuitem));
@@ -1306,9 +1299,9 @@ int on_btn_help_activate(GtkWidget *menuitem)
 }
 //
 
-#pragma  endregion Interface
+//#pragma  endregion Interface
 
-#pragma  region Drawing
+//#pragma  region Drawing
 
 //// Functions
 static void draw_brush(GtkWidget *widget, gdouble x, gdouble y,
@@ -1684,9 +1677,9 @@ int on_btn_wipe_focus_out_event(GtkWidget *btn_fill, GdkEventMotion *event,
 }
 //
 
-#pragma  endregion Drawing
+//#pragma  endregion Drawing
 
-#pragma  region ImageProcessing
+//#pragma  region ImageProcessing
 
 //// Functions
 //
@@ -2738,9 +2731,9 @@ int on_check_weekdayfilter_toggled(GtkToggleButton *togglebutton,
 ////
 //
 
-#pragma  endregion ImageProcessing
+//#pragma  endregion ImageProcessing
 
-#pragma  region OthersFunctions
+//#pragma  region OthersFunctions
 
 //// Functions
 int init_collage_interface(app_widgets *app_wdgts)
@@ -3758,4 +3751,4 @@ int on_txt_vogue_clicked(GtkWidget *btn_txt, app_widgets *app_wdgts)
 }
 //
 ////
-#pragma  endregion OthersFunctions
+//#pragma  endregion OthersFunctions
