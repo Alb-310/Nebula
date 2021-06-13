@@ -1205,6 +1205,7 @@ int on_menubar_new_activate(GtkWidget *menuitem, app_widgets *app_wdgts)
     gtk_widget_set_sensitive(app_wdgts->w_btn_heart, TRUE);
     gtk_widget_set_sensitive(app_wdgts->w_btn_triangle, TRUE);
     gtk_widget_set_sensitive(app_wdgts->w_entry_shapes, TRUE);      
+    gtk_widget_set_sensitive(app_wdgts->w_menubar_save_as, TRUE);     
 
     // Update preview
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(
